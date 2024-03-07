@@ -6,53 +6,51 @@ import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/l
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(0.3, window.innerWidth / window.innerHeight, 1, 1000);
 
-
-
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
 
 function createLetter(letterFile, xOffset) {
-  loader.load(
-      `models/newletters/${letterFile}/${letterFile}.gltf`,
-      function(gltf) {
-          const letter = gltf.scene.clone(); // Clone the original scene
+    loader.load(
+        `models/newletters/${letterFile}/${letterFile}.gltf`,
+        function (gltf) {
+            const letter = gltf.scene.clone(); // Clone the original scene
 
-          // Apply material to original letter
-          letter.traverse(child => {
-              if (child instanceof THREE.Mesh) {
-                  const material = new THREE.MeshToonMaterial({ color: 0x3C4F76 });
-                  child.material = material;
-              }
-          });
+            // Apply material to original letter
+            letter.traverse(child => {
+                if (child instanceof THREE.Mesh) {
+                    const material = new THREE.MeshToonMaterial({ color: 0x3C4F76 });
+                    child.material = material;
+                }
+            });
 
-          // Create outline mesh
-          const outlineLetter = letter.clone();
-          outlineLetter.traverse(child => {
-              if (child instanceof THREE.Mesh) {
-                  const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-                  child.material = outlineMaterial;
-                  child.scale.set(1.05, 1.05, 1.01); // Scale up slightly to make the outline visible
-              }
-          });
+            // Create outline mesh
+            const outlineLetter = letter.clone();
+            outlineLetter.traverse(child => {
+                if (child instanceof THREE.Mesh) {
+                    const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+                    child.material = outlineMaterial;
+                    child.scale.set(1.05, 1.05, 1.01); // Scale up slightly to make the outline visible
+                }
+            });
 
-          // Add both original letter and outline to the scene
-          scene.add(letter);
-          scene.add(outlineLetter);
+            // Add both original letter and outline to the scene
+            scene.add(letter);
+            scene.add(outlineLetter);
 
-          // Position the letters
-          letter.position.x = outlineLetter.position.x = xOffset;
+            // Position the letters
+            letter.position.x = outlineLetter.position.x = xOffset;
 
-          // Store letters for further manipulation if needed
-          letters.push(letter);
-          letters.push(outlineLetter);
-      },
-      function(xhr) {
-          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-      },
-      function(error) {
-          console.error(error);
-      }
-  );
+            // Store letters for further manipulation if needed
+            letters.push(letter);
+            letters.push(outlineLetter);
+        },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+            console.error(error);
+        }
+    );
 }
 
 
@@ -99,6 +97,39 @@ const topLight = new THREE.DirectionalLight(0xffffff, 1); // (color, intensity)
 topLight.position.set(0, 1, 10) //top-left-ish
 topLight.castShadow = true;
 scene.add(topLight);
+
+// Update camera aspect ratio for mobile devices
+function updateCameraAspect() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+}
+
+// Update renderer size for mobile devices
+function updateRendererSize() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Handle window resize events for mobile devices
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Add event listener for window resize
+window.addEventListener('resize', onWindowResize);
+
+// Function to adjust scene for mobile devices
+function adjustForMobile() {
+    // Set camera aspect ratio initially
+    updateCameraAspect();
+
+    // Set renderer size initially
+    updateRendererSize();
+}
+
+// Call adjustForMobile to initially adjust the scene for mobile devices
+adjustForMobile();
 
 function animate() {
     requestAnimationFrame(animate);
