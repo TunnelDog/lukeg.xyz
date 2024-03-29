@@ -1,0 +1,99 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.8.19",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Text.003",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "scale" : [
+                2.2397031784057617,
+                2.2397031784057617,
+                2.2397031784057617
+            ]
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Text.003",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1
+                    },
+                    "indices" : 2
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 33666,
+            "max" : [
+                0.7591662406921387,
+                0.1854097545146942,
+                0.039636995643377304
+            ],
+            "min" : [
+                0.26947829127311707,
+                -0.18513168394565582,
+                -0.5545541644096375
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 33666,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5123,
+            "count" : 201984,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 403992,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 403992,
+            "byteOffset" : 403992
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 403968,
+            "byteOffset" : 807984
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1211952,
+            "uri" : "E.bin"
+        }
+    ]
+}
