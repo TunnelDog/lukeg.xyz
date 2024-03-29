@@ -155,4 +155,8 @@ function animate() {
 animate();
 
 window.addEventListener( 'resize', onWindowResize );
-onWindowResize();
+
+if (window.innerWidth < window.innerHeight)
+{
+    onWindowResize();
+}
