@@ -111,13 +111,14 @@ function updateRendererSize() {
 
 // Handle window resize events for mobile devices
 function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = aspect;
+    camera.fov = 0.5 * (1 / aspect); // Adjust FOV based on aspect ratio
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    render();
 }
 
-// Add event listener for window resize
-window.addEventListener('resize', onWindowResize);
 
 // Function to adjust scene for mobile devices
 function adjustForMobile() {
@@ -152,3 +153,6 @@ function animate() {
 }
 
 animate();
+
+window.addEventListener( 'resize', onWindowResize );
+onWindowResize();
