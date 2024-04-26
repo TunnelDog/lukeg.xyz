@@ -9,6 +9,7 @@ const camera = new THREE.PerspectiveCamera(0.3, window.innerWidth / window.inner
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
 
+
 function createLetter(letterFile, xOffset) {
     loader.load(
         `models/newletters/${letterFile}/${letterFile}.gltf`,
@@ -53,16 +54,15 @@ function createLetter(letterFile, xOffset) {
     );
 }
 
-
 // Create and position letters
 const letters = [];
 
 // Create letters
-createLetter('L', -1.2);
-createLetter('U', -0.65);
-createLetter('K', 0);
-createLetter('E', 0.6);
-createLetter('G', 1.2);
+createLetter('L', -1.37);
+createLetter('U', -0.79);
+createLetter('K', -0.125);
+createLetter('E', 0.47);
+createLetter('G', 1.3);
 
 // Function to center letters horizontally
 function centerLetters() {
@@ -113,7 +113,7 @@ function updateRendererSize() {
 function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
     camera.aspect = aspect;
-    camera.fov = 0.3 * (1 / aspect); // Adjust FOV based on aspect ratio
+    camera.fov = 0.34 * (1 / aspect); // Adjust FOV based on aspect ratio
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
     render();
