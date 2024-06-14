@@ -1,6 +1,6 @@
 {
     "asset" : {
-        "generator" : "Khronos glTF Blender I/O v1.8.19",
+        "generator" : "Khronos glTF Blender I/O v1.3.48",
         "version" : "2.0"
     },
     "scene" : 0,
@@ -8,11 +8,41 @@
         {
             "name" : "Scene",
             "nodes" : [
-                0
+                0,
+                1,
+                2
             ]
         }
     ],
     "nodes" : [
+        {
+            "name" : "Light",
+            "rotation" : [
+                0.16907575726509094,
+                0.7558803558349609,
+                -0.27217137813568115,
+                0.570947527885437
+            ],
+            "translation" : [
+                4.076245307922363,
+                5.903861999511719,
+                -1.0054539442062378
+            ]
+        },
+        {
+            "name" : "Camera",
+            "rotation" : [
+                0.483536034822464,
+                0.33687159419059753,
+                -0.20870360732078552,
+                0.7804827094078064
+            ],
+            "translation" : [
+                7.358891487121582,
+                4.958309173583984,
+                6.925790786743164
+            ]
+        },
         {
             "mesh" : 0,
             "name" : "Text",
@@ -42,53 +72,53 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 7672,
+            "count" : 6666,
             "max" : [
-                0.23802892863750458,
-                0.12695108354091644,
-                0.04212146997451782
+                -1.1562607288360596,
+                0.23132672905921936,
+                0.03188009932637215
             ],
             "min" : [
-                -0.22407783567905426,
-                -0.12406362593173981,
-                -0.5370062589645386
+                -1.622632622718811,
+                -0.23116344213485718,
+                -0.5451818704605103
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 7672,
+            "count" : 6666,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5123,
-            "count" : 25200,
+            "count" : 39984,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 92064,
+            "byteLength" : 79992,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 92064,
-            "byteOffset" : 92064
+            "byteLength" : 79992,
+            "byteOffset" : 79992
         },
         {
             "buffer" : 0,
-            "byteLength" : 50400,
-            "byteOffset" : 184128
+            "byteLength" : 79968,
+            "byteOffset" : 159984
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 234528,
-            "uri" : "scene.bin"
+            "byteLength" : 239952,
+            "uri" : "L.bin"
         }
     ]
 }
