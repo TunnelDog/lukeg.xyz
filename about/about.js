@@ -6,7 +6,7 @@ const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerH
 camera.position.z = 10;
 
 const renderer = new THREE.WebGLRenderer({ alpha: true }); // Enable alpha for transparency
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth + 1000, window.innerHeight + 1000);
 container.appendChild(renderer.domElement);
 
 function addSphere(starColor) {
