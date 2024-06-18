@@ -6,7 +6,7 @@ const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerH
 camera.position.z = 10;
 
 const renderer = new THREE.WebGLRenderer({ alpha: true }); // Enable alpha for transparency
-renderer.setSize(window.innerWidth + 1000, window.innerHeight + 1000);
+renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 
 function addSphere(starColor) {
@@ -19,7 +19,7 @@ function addSphere(starColor) {
     sphere.position.y = Math.random() * 2000 - 500;
     sphere.position.z = z;
 
-    sphere.scale.x = sphere.scale.y = 2;
+    sphere.scale.x = sphere.scale.y = 2.5;
 
     scene.add(sphere);
     stars.push(sphere);
@@ -29,7 +29,7 @@ function addSphere(starColor) {
 function animateStars() {
   for (let i = 0; i < stars.length; i++) {
     const star = stars[i];
-    star.position.z += i / 50;
+    star.position.z += i / 25;
     if (star.position.z > 1000) star.position.z -= 2000;
   }
 }
