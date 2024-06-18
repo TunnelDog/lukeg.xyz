@@ -5,6 +5,7 @@ import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/l
 //Create a Three.JS Scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(0.3, window.innerWidth / window.innerHeight, 1, 1000);
+camera.position.y = 0.25;
 
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
@@ -151,6 +152,18 @@ function animate() {
 
     renderer.render(scene, camera);
 }
+
+let oldx = 0;
+let oldy = 0;
+
+window.onmousemove = function (ev) {
+    const changex = ev.x - oldx;
+    const changey = ev.y - oldy;
+    camera.position.x += changex / 15000;
+    camera.position.y -= changey / 15000;
+    oldx = ev.x;
+    oldy = ev.y;
+  };
 
 animate();
 
