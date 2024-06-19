@@ -1,4 +1,3 @@
-//Luke G
 import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
 
@@ -9,7 +8,6 @@ camera.position.y = 0.25;
 
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
-
 
 function createLetter(letterFile, xOffset) {
     loader.load(
@@ -79,8 +77,6 @@ function centerLetters() {
 // Call centerLetters to initially center the letters
 centerLetters();
 
-
-
 //Instantiate a new renderer and set its size
 const renderer = new THREE.WebGLRenderer({ alpha: true }); //Alpha: true allows for the transparent background
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -116,10 +112,9 @@ function onWindowResize() {
     camera.aspect = aspect;
     camera.fov = 0.34 * (1 / aspect); // Adjust FOV based on aspect ratio
     camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
     render();
 }
-
 
 // Function to adjust scene for mobile devices
 function adjustForMobile() {
@@ -140,7 +135,7 @@ function animate() {
     letters.forEach((letter, index) => {
         // Vertical hovering (up and down) with staggered delay
         const verticalOffset = Math.sin(Date.now() * 0.001 + index * 0.12) * 0.1; // Adjust the multiplier and add an offset for range
-        letter.position.y = verticalOffset;
+        letter.position.y += verticalOffset / 100;
 
         // Horizontal rotation (left to right)
         const rotationRange = 0.4; // Adjust the rotation range (in radians)
@@ -153,23 +148,25 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-let oldx = 0;
-let oldy = 0;
+let oldx = window.innerWidth / 2;
+let oldy = window.innerHeight / 2;
 
 window.onmousemove = function (ev) {
-    const changex = ev.x - oldx;
-    const changey = ev.y - oldy;
-    camera.position.x += changex / 15000;
-    camera.position.y -= changey / 15000;
-    oldx = ev.x;
-    oldy = ev.y;
-  };
+    const changex = ev.clientX - oldx;
+    const changey = ev.clientY - oldy;
+    letters.forEach((letter, index) => {
+        const factor = 2500 + index * 100; // Adjust the factor to differentiate the movement of each letter
+        letter.position.x += changex / factor;
+        letter.position.y -= changey / factor; // Ensure vertical movement is prominent
+    });
+    oldx = ev.clientX;
+    oldy = ev.clientY;
+};
 
 animate();
 
-window.addEventListener( 'resize', onWindowResize );
+window.addEventListener('resize', onWindowResize);
 
-if (window.innerWidth < window.innerHeight)
-{
+if (window.innerWidth < window.innerHeight) {
     onWindowResize();
 }
