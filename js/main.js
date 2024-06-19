@@ -155,7 +155,7 @@ window.onmousemove = function (ev) {
     const changex = ev.clientX - oldx;
     const changey = ev.clientY - oldy;
     letters.forEach((letter, index) => {
-        const factor = 2500 + index * 100; // Adjust the factor to differentiate the movement of each letter
+        const factor = 2200 + index * 100; // Adjust the factor to differentiate the movement of each letter
         letter.position.x += changex / factor;
         letter.position.y -= changey / factor; // Ensure vertical movement is prominent
     });
