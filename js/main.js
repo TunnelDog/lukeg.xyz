@@ -13,7 +13,7 @@ function createLetter(letterFile, xOffset) {
     loader.load(
         `models/newletters/${letterFile}/${letterFile}.gltf`,
         function (gltf) {
-            const letter = gltf.scene.clone(); // Clone the original scene
+            const letter = gltf.scene.clone();
 
             // Apply material to original letter
             letter.traverse(child => {
@@ -29,20 +29,23 @@ function createLetter(letterFile, xOffset) {
                 if (child instanceof THREE.Mesh) {
                     const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
                     child.material = outlineMaterial;
-                    child.scale.set(1.05, 1.05, 1.01); // Scale up slightly to make the outline visible
+                    child.scale.multiplyScalar(1.04); // Scale up slightly to make the outline visible
                 }
             });
 
-            // Add both original letter and outline to the scene
-            scene.add(letter);
-            scene.add(outlineLetter);
+            // Create a group to hold both the letter and its outline
+            const letterGroup = new THREE.Group();
+            letterGroup.add(letter);
+            letterGroup.add(outlineLetter);
 
-            // Position the letters
-            letter.position.x = outlineLetter.position.x = xOffset;
+            // Position the group
+            letterGroup.position.x = xOffset;
 
-            // Store letters for further manipulation if needed
-            letters.push(letter);
-            letters.push(outlineLetter);
+            // Add the group to the scene
+            scene.add(letterGroup);
+
+            // Store letter groups for further manipulation
+            letters.push(letterGroup);
         },
         function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -131,18 +134,20 @@ adjustForMobile();
 function animate() {
     requestAnimationFrame(animate);
 
-    // Update letter positions and rotations for hovering and rotating effect
-    letters.forEach((letter, index) => {
-        // Vertical hovering (up and down) with staggered delay
-        const verticalOffset = Math.sin(Date.now() * 0.001 + index * 0.12) * 0.1; // Adjust the multiplier and add an offset for range
-        letter.position.y += verticalOffset / 100;
+    const time = Date.now() * 0.001; // Current time in seconds
 
-        // Horizontal rotation (left to right)
-        const rotationRange = 0.4; // Adjust the rotation range (in radians)
-        const rotationSpeed = 0.001; // Adjust the rotation speed as needed
-        const rotationOffset = 0; // Offset to make letters rotate correctly
-        const rotation = rotationRange * Math.sin(Date.now() * rotationSpeed) + rotationOffset;
-        letter.rotation.y = rotation;
+    letters.forEach((letter, index) => {
+        // Wave animation
+        const waveFrequency = 1.5; // Adjust for faster/slower waves
+        const waveAmplitude = 0.15; // Adjust for higher/lower waves
+        const waveOffset = index * 0.5; // Offset each letter in the wave
+
+        // Vertical movement (floating effect)
+        letter.position.y = Math.sin(time * waveFrequency + waveOffset) * waveAmplitude;
+
+        // Slight rotation for added dynamic effect
+        letter.rotation.x = Math.sin(time * waveFrequency * 0.5 + waveOffset) * 0.05;
+        letter.rotation.z = Math.cos(time * waveFrequency * 0.5 + waveOffset) * 0.05;
     });
 
     renderer.render(scene, camera);
@@ -155,9 +160,10 @@ window.onmousemove = function (ev) {
     const changex = ev.clientX - oldx;
     const changey = ev.clientY - oldy;
     letters.forEach((letter, index) => {
-        const factor = 2200 + index * 100; // Adjust the factor to differentiate the movement of each letter
-        letter.position.x += changex / factor;
-        letter.position.y -= changey / factor; // Ensure vertical movement is prominent
+        const factorx = 2200 + index * 100;
+        const factory = 10000 + index * 100;
+        letter.position.x += changex / factorx;
+        camera.position.y += changey / factory;
     });
     oldx = ev.clientX;
     oldy = ev.clientY;
