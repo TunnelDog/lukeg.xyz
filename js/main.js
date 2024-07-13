@@ -77,79 +77,61 @@ function centerLetters() {
     });
 }
 
-// Call centerLetters to initially center the letters
 centerLetters();
 
-//Instantiate a new renderer and set its size
-const renderer = new THREE.WebGLRenderer({ alpha: true }); //Alpha: true allows for the transparent background
+const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// Add the renderer to the DOM
 const canvas = renderer.domElement;
 canvas.style.pointerEvents = "none";
 document.getElementById("container3D").appendChild(canvas);
 
-//Set how far the camera will be from the 3D model
 camera.position.z = 600;
 
-//Add lights to the scene, so we can actually see the 3D model
 const topLight = new THREE.DirectionalLight(0xffffff, 1); // (color, intensity)
-topLight.position.set(0, 1, 10) //top-left-ish
+topLight.position.set(0, 1, 10)
 topLight.castShadow = true;
 scene.add(topLight);
 
-// Update camera aspect ratio for mobile devices
 function updateCameraAspect() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 }
 
-// Update renderer size for mobile devices
 function updateRendererSize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Handle window resize events for mobile devices
 function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
     camera.aspect = aspect;
-    camera.fov = 0.34 * (1 / aspect); // Adjust FOV based on aspect ratio
+    camera.fov = 0.34 * (1 / aspect);
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     render();
 }
 
-// Function to adjust scene for mobile devices
 function adjustForMobile() {
-    // Set camera aspect ratio initially
     updateCameraAspect();
-
-    // Set renderer size initially
     updateRendererSize();
 }
 
-// Call adjustForMobile to initially adjust the scene for mobile devices
 adjustForMobile();
 
 function animate() {
     requestAnimationFrame(animate);
 
-    const time = Date.now() * 0.001; // Current time in seconds
+    const time = Date.now() * 0.001;
 
     letters.forEach((letter, index) => {
         // Wave animation
-        const waveFrequency = 1.5; // Adjust for faster/slower waves
-        const waveAmplitude = 0.15; // Adjust for higher/lower waves
-        const waveOffset = index * 0.5; // Offset each letter in the wave
-
-        // Vertical movement (floating effect)
+        const waveFrequency = 1.5;
+        const waveAmplitude = 0.15;
+        const waveOffset = index * 0.5;
         letter.position.y = Math.sin(time * waveFrequency + waveOffset) * waveAmplitude;
-
-        // Slight rotation for added dynamic effect
         letter.rotation.x = Math.sin(time * waveFrequency * 0.5 + waveOffset) * 0.05;
         letter.rotation.z = Math.cos(time * waveFrequency * 0.5 + waveOffset) * 0.05;
     });
-
     renderer.render(scene, camera);
 }
 
