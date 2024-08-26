@@ -3,7 +3,6 @@ import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/l
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(0.3, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.y = 0.25;
 
 const loader = new GLTFLoader();
 
@@ -24,7 +23,8 @@ function createLetter(letterFile, xOffset) {
                 if (child instanceof THREE.Mesh) {
                     const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
                     child.material = outlineMaterial;
-                    child.scale.multiplyScalar(1.04);
+                    child.scale.multiplyScalar(1.08);
+                    child.position.y = -0.02
                 }
             });
 
@@ -52,15 +52,29 @@ createLetter('K', -0.125);
 createLetter('E', 0.47);
 createLetter('G', 1.3);
 
-function centerLetters() {
-    const totalWidth = 1.5 * 2 + 0.5 * 3; 
-    const centerOffset = -totalWidth / 2;
-    letters.forEach((letter, index) => {
-        letter.position.x = centerOffset + index * 0.5;
-    });
+let cube;
+let cubeGroup;
+
+function loadCube() {
+    loader.load(
+        '/models/cube.gltf',
+        function (gltf) {
+            cube = gltf.scene;
+            cubeGroup = new THREE.Group();
+            cubeGroup.add(cube);
+            scene.add(cubeGroup);
+            cubeGroup.position.set(-10, 0, -5);
+        },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+            console.error('An error happened', error);
+        }
+    );
 }
 
-centerLetters();
+loadCube();
 
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -71,9 +85,9 @@ document.getElementById("container3D").appendChild(canvas);
 
 camera.position.z = 600;
 
-const topLight = new THREE.DirectionalLight(0xffffff, 1); // (color, intensity)
-topLight.position.set(0, 1, 10) //top-left-ish
-topLight.castShadow = true;
+const topLight = new THREE.DirectionalLight(0xffffff, 1);
+topLight.position.set(0, 1, 10)
+topLight.castShadow = false;
 scene.add(topLight);
 
 function updateCameraAspect() {
@@ -101,13 +115,16 @@ function adjustForMobile() {
 
 adjustForMobile();
 
+let lastFloatTime = 0;
+const floatInterval = 20000;
+
 function animate() {
     requestAnimationFrame(animate);
 
     const time = Date.now() * 0.001;
 
     letters.forEach((letter, index) => {
-        // Wave animation
+        // wave animation
         const waveFrequency = 1.5;
         const waveAmplitude = 0.15;
         const waveOffset = index * 0.5;
@@ -116,6 +133,23 @@ function animate() {
         letter.rotation.x = Math.sin(time * waveFrequency * 0.5 + waveOffset) * 0.05;
         letter.rotation.z = Math.cos(time * waveFrequency * 0.5 + waveOffset) * 0.06;
     });
+
+    // Cube animation
+    if (cubeGroup) {
+        if (Date.now() - lastFloatTime > floatInterval) {
+            lastFloatTime = Date.now();
+            cubeGroup.position.x = -10; // reset to left side
+        }
+
+        if (cubeGroup.position.x < 10) {
+            cubeGroup.position.x += 0.01; // horizontal movement
+        }
+
+        cube.rotation.x += 0.005;
+        cube.rotation.y += 0.005;
+
+        cubeGroup.position.y = Math.sin(time * 1) * 0.3;
+    }
 
     renderer.render(scene, camera);
 }
