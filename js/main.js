@@ -142,7 +142,7 @@ function animate() {
         }
 
         if (cubeGroup.position.x < 10) {
-            cubeGroup.position.x += 0.01; // horizontal movement
+            cubeGroup.position.x += 0.03; // horizontal movement
         }
 
         cube.rotation.x += 0.005;
