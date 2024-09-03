@@ -235,7 +235,7 @@ function animate() {
 
     letters.forEach((letter, index) => {
         const waveFrequency = 1.5;
-        const waveAmplitude = 0.15;
+        const waveAmplitude = 0.05;
         const waveOffset = index * 0.5;
 
         letter.position.y = Math.sin(time * waveFrequency + waveOffset) * waveAmplitude;
@@ -280,22 +280,6 @@ function animate() {
 
     renderer.render(scene, camera);
 }
-
-let oldx = window.innerWidth / 2;
-let oldy = window.innerHeight / 2;
-
-window.onmousemove = function (ev) {
-    const changex = ev.clientX - oldx;
-    const changey = ev.clientY - oldy;
-    letters.forEach((letter, index) => {
-        const factor = 4000 + index * 100;
-        letter.position.x += changex / factor;
-        letter.position.y += changey / factor;
-    });
-    oldx = ev.clientX;
-    oldy = ev.clientY;
-};
-
 animate();
 
 window.addEventListener('resize', onWindowResize);
