@@ -79,7 +79,7 @@ function loadCube() {
                 cubeGroup.position.set(-0.92, 0.3, -5);
             }
             else {
-                cubeGroup.position.set(-0.75, 0.3, -5);
+                cubeGroup.position.set(-0.75, 0.6, -5);
             }
         },
         function (xhr) {
