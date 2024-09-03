@@ -32,8 +32,6 @@ function createLetter(letterFile, xOffset) {
             letterGroup.add(letter);
             letterGroup.add(outlineLetter);
             letterGroup.position.x = xOffset;
-            
-            // Scale down the entire letter group
             letterGroup.scale.set(0.5, 0.5, 0.5); // Adjust this value to make letters smaller or larger
             
             scene.add(letterGroup);
@@ -69,8 +67,7 @@ function loadCube() {
             cubeGroup = new THREE.Group();
             cubeGroup.add(cube);
             
-            // Scale down the cube
-            const scaleValue = 0.2; // Adjust this value to make the cube smaller or larger
+            const scaleValue = 0.2;
             cubeGroup.scale.set(scaleValue, scaleValue, scaleValue);
             
             scene.add(cubeGroup);
@@ -96,9 +93,9 @@ function loadLaptop() {
         '/models/laptop.glb',
         function (gltf) {
             laptop = gltf.scene;
-            laptop.scale.set(0.15, 0.15, 0.15); // Adjust scale as needed
-            laptop.position.set(0.5, -0.3, -5); // Adjust position as needed
-            laptop.rotation.set(0.4, -0.2, 0); // Adjust position as needed
+            laptop.scale.set(0.15, 0.15, 0.15);
+            laptop.position.set(0.5, -0.3, -5);
+            laptop.rotation.set(0.4, -0.2, 0);
             scene.add(laptop);
         },
         function (xhr) {
@@ -119,7 +116,6 @@ function loadLaptopScreen() {
             laptopScreen.position.set(0.51, -0.3, -5);
             laptopScreen.rotation.set(0.4, -0.2, 0);
             
-            // Create a video element
             const video = document.createElement('video');
             video.src = 'models/loop.mp4';
             video.loop = true;
@@ -127,24 +123,20 @@ function loadLaptopScreen() {
             video.playsInline = true;
             video.crossOrigin = 'anonymous';
             
-            // Create a video texture
             const videoTexture = new THREE.VideoTexture(video);
             videoTexture.minFilter = THREE.LinearFilter;
             videoTexture.magFilter = THREE.LinearFilter;
             
-            // Create a plane for the video
-            const aspectRatio = 16 / 9; // Adjust if your video has a different aspect ratio
+            const aspectRatio = 16 / 9;
             const planeWidth = 2.45;
             const planeHeight = planeWidth / aspectRatio;
             const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
             const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
             const videoPlane = new THREE.Mesh(planeGeometry, planeMaterial);
             
-            // Position the video plane slightly in front of the laptop screen
             videoPlane.position.set(0, 0.95, 0);
             videoPlane.rotation.set(0, 0, 0);
-            
-            // Create a glow plane
+    
             const glowGeometry = new THREE.PlaneGeometry(planeWidth * 2.4, planeHeight * 2.4);
             const glowMaterial = new THREE.ShaderMaterial({
                 uniforms: {
@@ -172,17 +164,10 @@ function loadLaptopScreen() {
                 blending: THREE.AdditiveBlending
             });
             const glowPlane = new THREE.Mesh(glowGeometry, glowMaterial);
-            
-            // Position the glow plane slightly behind the video plane
             glowPlane.position.set(0, 0.4, -1);
-            
-            // Add both planes to the laptop screen
             laptopScreen.add(glowPlane);
             laptopScreen.add(videoPlane);
-            
-            // Start video playback
             video.play().catch(e => console.error("Error playing video:", e));
-            
             scene.add(laptopScreen);
         },
         function (xhr) {
@@ -241,7 +226,7 @@ adjustForMobile();
 let lastFloatTime = 0;
 const floatInterval = 20000;
 let lastLaptopFloatTime = 0;
-const laptopFloatInterval = 15000; // Adjust this value to change how often the laptop moves
+const laptopFloatInterval = 15000;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -249,7 +234,6 @@ function animate() {
     const time = Date.now() * 0.001;
 
     letters.forEach((letter, index) => {
-        // wave animation
         const waveFrequency = 1.5;
         const waveAmplitude = 0.15;
         const waveOffset = index * 0.5;
@@ -259,38 +243,31 @@ function animate() {
         letter.rotation.z = Math.cos(time * waveFrequency * 0.5 + waveOffset) * 0.06;
     });
 
-    // Cube animation
     if (cubeGroup) {
-        // Vertical floating animation (up and down)
-        const cubeFloatAmplitude = 0.3; // Adjust the amplitude for more or less noticeable movement
-        const cubeFloatFrequency = 0.5; // Adjust frequency to control the speed of floating
+        const cubeFloatAmplitude = 0.3;
+        const cubeFloatFrequency = 0.5;
     
-    
-        // Slow rotation in all directions
-        cube.rotation.x += 0.002; // Slow down the rotation speed for a smoother effect
+        cube.rotation.x += 0.002;
         cube.rotation.y += 0.002;
         cube.rotation.z += 0.002;
     }
 
     
     if (laptop && laptopScreen) {
-        // Vertical floating animation (up and down)
-        const laptopFloatAmplitude = 0.2; // Increased amplitude for more noticeable movement
+        const laptopFloatAmplitude = 0.2; 
         const laptopFloatFrequency = 0.5;
         
         const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
         laptop.position.y = -0.4 + verticalOffset;
         laptopScreen.position.y = -0.4 + verticalOffset;
         
-        // Left-to-right rotation animation
-        const laptopRotationAmplitude = 0.1; // Increased for more noticeable rotation
+        const laptopRotationAmplitude = 0.1;
         const laptopRotationFrequency = 0.3;
         
         const rotationOffset = Math.sin(time * laptopRotationFrequency) * laptopRotationAmplitude;
         laptop.rotation.y = -0.2 + rotationOffset;
         laptopScreen.rotation.y = -0.2 + rotationOffset;
         
-        // Slight forward-backward tilt
         const tiltAmplitude = 0.05;
         const tiltFrequency = 0.7;
         
