@@ -74,7 +74,7 @@ function loadCube() {
             cubeGroup.scale.set(scaleValue, scaleValue, scaleValue);
             
             scene.add(cubeGroup);
-            cubeGroup.position.set(-10, 0, -5);
+            cubeGroup.position.set(-0.92, 0.3, -5);
         },
         function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -91,7 +91,7 @@ function loadLaptop() {
         function (gltf) {
             laptop = gltf.scene;
             laptop.scale.set(0.15, 0.15, 0.15); // Adjust scale as needed
-            laptop.position.set(0.5, -0.4, -5); // Adjust position as needed
+            laptop.position.set(0.5, -0.3, -5); // Adjust position as needed
             laptop.rotation.set(0.4, -0.2, 0); // Adjust position as needed
             scene.add(laptop);
         },
@@ -110,7 +110,7 @@ function loadLaptopScreen() {
         function (gltf) {
             laptopScreen = gltf.scene;
             laptopScreen.scale.set(0.15, 0.15, 0.15);
-            laptopScreen.position.set(0.51, -0.4, -5);
+            laptopScreen.position.set(0.51, -0.3, -5);
             laptopScreen.rotation.set(0.4, -0.2, 0);
             
             // Create a video element
@@ -255,19 +255,15 @@ function animate() {
 
     // Cube animation
     if (cubeGroup) {
-        if (Date.now() - lastFloatTime > floatInterval) {
-            lastFloatTime = Date.now();
-            cubeGroup.position.x = -10; // reset to left side
-        }
-
-        if (cubeGroup.position.x < 10) {
-            cubeGroup.position.x += 0.004; // horizontal movement
-        }
-
-        cube.rotation.x += 0.005;
-        cube.rotation.y += 0.005;
-
-        cubeGroup.position.y = Math.sin(time * 1) * 0.3;
+        // Vertical floating animation (up and down)
+        const cubeFloatAmplitude = 0.3; // Adjust the amplitude for more or less noticeable movement
+        const cubeFloatFrequency = 0.5; // Adjust frequency to control the speed of floating
+    
+    
+        // Slow rotation in all directions
+        cube.rotation.x += 0.002; // Slow down the rotation speed for a smoother effect
+        cube.rotation.y += 0.002;
+        cube.rotation.z += 0.002;
     }
 
     
