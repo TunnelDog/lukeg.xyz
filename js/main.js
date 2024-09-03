@@ -193,8 +193,8 @@ document.getElementById("container3D").appendChild(canvas);
 
 camera.position.z = 300;
 
-const topLight = new THREE.DirectionalLight(0xffffff, 1);
-topLight.position.set(0, 0, 10)
+const topLight = new THREE.DirectionalLight(0xffffff, 2);
+topLight.position.set(0, 10, 30)
 topLight.castShadow = false;
 scene.add(topLight);
 
