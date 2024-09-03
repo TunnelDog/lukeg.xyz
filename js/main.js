@@ -74,7 +74,13 @@ function loadCube() {
             cubeGroup.scale.set(scaleValue, scaleValue, scaleValue);
             
             scene.add(cubeGroup);
-            cubeGroup.position.set(-0.92, 0.3, -5);
+            
+            if (window.innerWidth > window.innerHeight) {
+                cubeGroup.position.set(-0.92, 0.3, -5);
+            }
+            else {
+                cubeGroup.position.set(-0.75, 0.3, -5);
+            }
         },
         function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
