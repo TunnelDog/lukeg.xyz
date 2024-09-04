@@ -378,8 +378,8 @@ function animate() {
 }
 
 animate();
-setTimeout(loadLaptop, 44);
-setTimeout(loadLaptopScreen, 100);
+loadLaptop();
+setTimeout(loadLaptopScreen, 50);
 loadCube();
 
 window.addEventListener('resize', onWindowResize);
