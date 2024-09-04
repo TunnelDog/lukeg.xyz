@@ -8,8 +8,13 @@
 }
 
 body {
+  cursor: default;
   min-height: 100vh;
   background-color: #E6E6E9;
+}
+
+body.hovering {
+  cursor: pointer;
 }
 
 .header {

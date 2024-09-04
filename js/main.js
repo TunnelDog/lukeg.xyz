@@ -6,6 +6,19 @@ const camera = new THREE.PerspectiveCamera(0.3, window.innerWidth / window.inner
 
 const loader = new GLTFLoader();
 
+const letters = [];
+let cube;
+let cubeGroup;
+let laptop;
+let laptopScreen;
+let laptopGroup;
+
+let raycaster, mouse;
+let isHovering = false;
+
+raycaster = new THREE.Raycaster();
+mouse = new THREE.Vector2();
+
 function createLetter(letterFile, xOffset) {
     loader.load(
         `models/newletters/${letterFile}/${letterFile}.gltf`,
@@ -32,7 +45,7 @@ function createLetter(letterFile, xOffset) {
             letterGroup.add(letter);
             letterGroup.add(outlineLetter);
             letterGroup.position.x = xOffset;
-            letterGroup.scale.set(0.5, 0.5, 0.5); // Adjust this value to make letters smaller or larger
+            letterGroup.scale.set(0.5, 0.5, 0.5);
             
             scene.add(letterGroup);
             letters.push(letterGroup);
@@ -46,18 +59,11 @@ function createLetter(letterFile, xOffset) {
     );
 }
 
-const letters = [];
-
 createLetter('L', -0.685);
 createLetter('U', -0.395);
 createLetter('K', -0.0625);
 createLetter('E', 0.235);
 createLetter('G', 0.65);
-
-let cube;
-let cubeGroup;
-let laptop;
-let laptopScreen;
 
 function loadCube() {
     loader.load(
@@ -93,10 +99,13 @@ function loadLaptop() {
         '/models/laptop.glb',
         function (gltf) {
             laptop = gltf.scene;
-            laptop.scale.set(0.15, 0.15, 0.15);
-            laptop.position.set(0.5, -0.3, -5);
-            laptop.rotation.set(0.4, -0.2, 0);
-            scene.add(laptop);
+            laptopGroup = new THREE.Group();
+            laptopGroup.add(laptop);
+            laptopGroup.scale.set(0.15, 0.15, 0.15);
+            laptopGroup.position.set(0.5, -0.3, -5);
+            laptopGroup.rotation.set(0.4, -0.2, 0);
+            laptopGroup.userData.clickable = true;
+            scene.add(laptopGroup);
         },
         function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -112,9 +121,9 @@ function loadLaptopScreen() {
         '/models/laptopscreen.glb',
         function (gltf) {
             laptopScreen = gltf.scene;
-            laptopScreen.scale.set(0.15, 0.15, 0.15);
-            laptopScreen.position.set(0.51, -0.3, -5);
-            laptopScreen.rotation.set(0.4, -0.2, 0);
+            laptopScreen.scale.set(0.95, 0.95, 0.95);
+            laptopScreen.position.set(0, 0.35, 0.05);
+            laptopScreen.rotation.set(-0.1, 0, 0);
             
             const video = document.createElement('video');
             video.src = 'models/loop.mp4';
@@ -130,12 +139,42 @@ function loadLaptopScreen() {
             const aspectRatio = 16 / 9;
             const planeWidth = 2.45;
             const planeHeight = planeWidth / aspectRatio;
-            const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+            
+            // Create a custom geometry with adjusted UV coordinates
+            const planeGeometry = new THREE.BufferGeometry();
+            const vertices = new Float32Array([
+                -planeWidth/2, -planeHeight/2, 0,
+                 planeWidth/2, -planeHeight/2, 0,
+                 planeWidth/2,  planeHeight/2, 0,
+                -planeWidth/2,  planeHeight/2, 0
+            ]);
+            
+            // Adjust these values to change the visible portion of the video
+            const uvScaleX = 0.9; // Decrease to zoom in horizontally
+            const uvScaleY = 0.9; // Decrease to zoom in vertically
+            const uvOffsetX = (1 - uvScaleX) / 2; // Center horizontally
+            const uvOffsetY = 0.1; // Move up by 10%
+            
+            const uvs = new Float32Array([
+                uvOffsetX, uvOffsetY,
+                uvScaleX + uvOffsetX, uvOffsetY,
+                uvScaleX + uvOffsetX, uvScaleY + uvOffsetY,
+                uvOffsetX, uvScaleY + uvOffsetY
+            ]);
+            
+            const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+            
+            planeGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            planeGeometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+            planeGeometry.setIndex(new THREE.BufferAttribute(indices, 1));
+            
             const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
             const videoPlane = new THREE.Mesh(planeGeometry, planeMaterial);
             
-            videoPlane.position.set(0, 0.95, 0);
-            videoPlane.rotation.set(0, 0, 0);
+            // Adjust the position and scale of the video plane
+            videoPlane.position.set(0.1, 1.1, 0.01); // Move up by increasing Y value
+            videoPlane.scale.set(1, 1, 1); // Slightly reduce scale, more on Y to fit better
+            videoPlane.rotation.set(-0.1, 0, 0); // Match laptopScreen rotation
     
             const glowGeometry = new THREE.PlaneGeometry(planeWidth * 2.4, planeHeight * 2.4);
             const glowMaterial = new THREE.ShaderMaterial({
@@ -164,11 +203,12 @@ function loadLaptopScreen() {
                 blending: THREE.AdditiveBlending
             });
             const glowPlane = new THREE.Mesh(glowGeometry, glowMaterial);
-            glowPlane.position.set(0, 0.4, -1);
+            glowPlane.position.set(0, 0, -0.5);
             laptopScreen.add(glowPlane);
             laptopScreen.add(videoPlane);
             video.play().catch(e => console.error("Error playing video:", e));
             scene.add(laptopScreen);
+            laptopGroup.add(laptopScreen);
         },
         function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -179,16 +219,11 @@ function loadLaptopScreen() {
     );
 }
 
-
-loadCube();
-loadLaptop();
-loadLaptopScreen();
-
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 const canvas = renderer.domElement;
-canvas.style.pointerEvents = "none";
+canvas.style.pointerEvents = "auto";
 document.getElementById("container3D").appendChild(canvas);
 
 camera.position.z = 300;
@@ -223,10 +258,56 @@ function adjustForMobile() {
 
 adjustForMobile();
 
-let lastFloatTime = 0;
-const floatInterval = 20000;
-let lastLaptopFloatTime = 0;
-const laptopFloatInterval = 15000;
+canvas.addEventListener('mousemove', onMouseMove);
+canvas.addEventListener('click', onClick);
+
+function onMouseMove(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+
+function onClick(event) {
+    checkIntersection();
+    if (isHovering) {
+        window.open('https://www.youtube.com/@Luke-dt4jn', '_blank');
+    }
+}
+
+function checkIntersection() {
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    let hovering = false;
+
+    for (let i = 0; i < intersects.length; i++) {
+        let object = intersects[i].object;
+        while (object.parent && !(object.userData && object.userData.clickable)) {
+            object = object.parent;
+        }
+        
+        if (object.userData && object.userData.clickable) {
+            hovering = true;
+            if (!isHovering) {
+                isHovering = true;
+                document.body.style.cursor = 'pointer';
+                laptopGroup.scale.multiplyScalar(1.1);
+            }
+            break;
+        }
+    }
+
+    if (!hovering && isHovering) {
+        resetHoverState();
+    }
+}
+
+function resetHoverState() {
+    if (isHovering && laptopGroup) {
+        isHovering = false;
+        document.body.style.cursor = 'auto';
+        laptopGroup.scale.set(0.15, 0.15, 0.15);
+    }
+}
 
 function animate() {
     requestAnimationFrame(animate);
@@ -251,7 +332,6 @@ function animate() {
         cube.rotation.y += 0.002;
         cube.rotation.z += 0.002;
     }
-
     
     if (laptop && laptopScreen) {
         const laptopFloatAmplitude = 0.2; 
@@ -274,13 +354,36 @@ function animate() {
         const tiltOffset = Math.sin(time * tiltFrequency) * tiltAmplitude;
         laptop.rotation.x = 0.4 + tiltOffset;
         laptopScreen.rotation.x = 0.4 + tiltOffset;
-
     }
 
+    if (laptopGroup) {
+        const laptopFloatAmplitude = 0.2; 
+        const laptopFloatFrequency = 0.5;
+        
+        const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
+        laptopGroup.position.y = -0.3 + verticalOffset;
+        
+        const laptopRotationAmplitude = 0.1;
+        const laptopRotationFrequency = 0.3;
+        
+        const rotationOffset = Math.sin(time * laptopRotationFrequency) * laptopRotationAmplitude;
+        laptopGroup.rotation.y = -0.2 + rotationOffset;
+        
+        const tiltAmplitude = 0.05;
+        const tiltFrequency = 0.7;
+        
+        const tiltOffset = Math.sin(time * tiltFrequency) * tiltAmplitude;
+        laptopGroup.rotation.x = 0.4 + tiltOffset;
+    }
 
+    checkIntersection();
     renderer.render(scene, camera);
 }
+
 animate();
+setTimeout(loadLaptop, 44); // Small delay to ensure laptop is loaded first
+setTimeout(loadLaptopScreen, 100); // Small delay to ensure laptop is loaded first
+loadCube();
 
 window.addEventListener('resize', onWindowResize);
 
