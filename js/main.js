@@ -140,7 +140,6 @@ function loadLaptopScreen() {
             const planeWidth = 2.45;
             const planeHeight = planeWidth / aspectRatio;
             
-            // Create a custom geometry with adjusted UV coordinates
             const planeGeometry = new THREE.BufferGeometry();
             const vertices = new Float32Array([
                 -planeWidth/2, -planeHeight/2, 0,
@@ -149,11 +148,10 @@ function loadLaptopScreen() {
                 -planeWidth/2,  planeHeight/2, 0
             ]);
             
-            // Adjust these values to change the visible portion of the video
-            const uvScaleX = 0.9; // Decrease to zoom in horizontally
-            const uvScaleY = 0.9; // Decrease to zoom in vertically
-            const uvOffsetX = (1 - uvScaleX) / 2; // Center horizontally
-            const uvOffsetY = 0.1; // Move up by 10%
+            const uvScaleX = 0.9;
+            const uvScaleY = 0.9;
+            const uvOffsetX = (1 - uvScaleX) / 2;
+            const uvOffsetY = 0.1;
             
             const uvs = new Float32Array([
                 uvOffsetX, uvOffsetY,
@@ -171,10 +169,9 @@ function loadLaptopScreen() {
             const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
             const videoPlane = new THREE.Mesh(planeGeometry, planeMaterial);
             
-            // Adjust the position and scale of the video plane
-            videoPlane.position.set(0.1, 1.1, 0.01); // Move up by increasing Y value
-            videoPlane.scale.set(1, 1, 1); // Slightly reduce scale, more on Y to fit better
-            videoPlane.rotation.set(-0.1, 0, 0); // Match laptopScreen rotation
+            videoPlane.position.set(0.1, 1.1, 0.01);
+            videoPlane.scale.set(1, 1, 1);
+            videoPlane.rotation.set(-0.1, 0, 0);
     
             const glowGeometry = new THREE.PlaneGeometry(planeWidth * 2.4, planeHeight * 2.4);
             const glowMaterial = new THREE.ShaderMaterial({
@@ -228,7 +225,7 @@ document.getElementById("container3D").appendChild(canvas);
 
 camera.position.z = 300;
 
-const topLight = new THREE.DirectionalLight(0xffffff, 2);
+const topLight = new THREE.DirectionalLight(0xffffff, 1);
 topLight.position.set(0, 10, 30)
 topLight.castShadow = false;
 scene.add(topLight);
@@ -334,21 +331,21 @@ function animate() {
     }
     
     if (laptop && laptopScreen) {
-        const laptopFloatAmplitude = 0.2; 
-        const laptopFloatFrequency = 0.5;
+        const laptopFloatAmplitude = 0.1; 
+        const laptopFloatFrequency = 0.1;
         
         const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
         laptop.position.y = -0.4 + verticalOffset;
         laptopScreen.position.y = -0.4 + verticalOffset;
         
-        const laptopRotationAmplitude = 0.1;
+        const laptopRotationAmplitude = 0.05;
         const laptopRotationFrequency = 0.3;
         
         const rotationOffset = Math.sin(time * laptopRotationFrequency) * laptopRotationAmplitude;
         laptop.rotation.y = -0.2 + rotationOffset;
         laptopScreen.rotation.y = -0.2 + rotationOffset;
         
-        const tiltAmplitude = 0.05;
+        const tiltAmplitude = 0.02;
         const tiltFrequency = 0.7;
         
         const tiltOffset = Math.sin(time * tiltFrequency) * tiltAmplitude;
@@ -381,8 +378,8 @@ function animate() {
 }
 
 animate();
-setTimeout(loadLaptop, 44); // Small delay to ensure laptop is loaded first
-setTimeout(loadLaptopScreen, 100); // Small delay to ensure laptop is loaded first
+setTimeout(loadLaptop, 44);
+setTimeout(loadLaptopScreen, 100);
 loadCube();
 
 window.addEventListener('resize', onWindowResize);
