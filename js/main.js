@@ -12,6 +12,8 @@ let cubeGroup;
 let laptop;
 let laptopScreen;
 let laptopGroup;
+let board;
+let boardGroup;
 
 let raycaster, mouse;
 let isHovering = false;
@@ -94,126 +96,137 @@ function loadCube() {
     );
 }
 
-function loadLaptop() {
+function loadBaord() {
     loader.load(
-        '/models/laptop.glb',
-        function (gltf) {
-            laptop = gltf.scene;
-            laptopGroup = new THREE.Group();
-            laptopGroup.add(laptop);
-            laptopGroup.scale.set(0.15, 0.15, 0.15);
-            laptopGroup.position.set(0.5, -0.3, -5);
-            laptopGroup.rotation.set(0.4, -0.2, 0);
-            laptopGroup.userData.clickable = true;
-            scene.add(laptopGroup);
-        },
-        function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.error('An error happened', error);
+        '/models/board1.gltf',
+        function(gltf) {
+            board = gltf.scene;
+            boardGroup = new THREE.Group();
+            boardGroup.add(board);
+
+            const scaleValue = 0.1;
+            boardGroup.scale.set(scaleValue, scaleValue, scaleValue);
+            boardGroup.position.set(-0.35, -0.25, -5);
+            boardGroup.rotation.set(2, -1, 0);
+
+            scene.add(boardGroup);
         }
     );
 }
 
-function loadLaptopScreen() {
-    loader.load(
-        '/models/laptopscreen.glb',
-        function (gltf) {
-            laptopScreen = gltf.scene;
-            laptopScreen.scale.set(0.95, 0.95, 0.95);
-            laptopScreen.position.set(0, 0.35, 0.05);
-            laptopScreen.rotation.set(-0.1, 0, 0);
-            
-            const video = document.createElement('video');
-            video.src = 'models/loop.mp4';
-            video.loop = true;
-            video.muted = true;
-            video.playsInline = true;
-            video.crossOrigin = 'anonymous';
-            
-            const videoTexture = new THREE.VideoTexture(video);
-            videoTexture.minFilter = THREE.LinearFilter;
-            videoTexture.magFilter = THREE.LinearFilter;
-            
-            const aspectRatio = 16 / 9;
-            const planeWidth = 2.45;
-            const planeHeight = planeWidth / aspectRatio;
-            
-            const planeGeometry = new THREE.BufferGeometry();
-            const vertices = new Float32Array([
-                -planeWidth/2, -planeHeight/2, 0,
-                 planeWidth/2, -planeHeight/2, 0,
-                 planeWidth/2,  planeHeight/2, 0,
-                -planeWidth/2,  planeHeight/2, 0
-            ]);
-            
-            const uvScaleX = 0.9;
-            const uvScaleY = 0.9;
-            const uvOffsetX = (1 - uvScaleX) / 2;
-            const uvOffsetY = 0.1;
-            
-            const uvs = new Float32Array([
-                uvOffsetX, uvOffsetY,
-                uvScaleX + uvOffsetX, uvOffsetY,
-                uvScaleX + uvOffsetX, uvScaleY + uvOffsetY,
-                uvOffsetX, uvScaleY + uvOffsetY
-            ]);
-            
-            const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
-            
-            planeGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            planeGeometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-            planeGeometry.setIndex(new THREE.BufferAttribute(indices, 1));
-            
-            const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-            const videoPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-            
-            videoPlane.position.set(0.1, 1.1, 0.01);
-            videoPlane.scale.set(1, 1, 1);
-            videoPlane.rotation.set(-0.1, 0, 0);
-    
-            const glowGeometry = new THREE.PlaneGeometry(planeWidth * 2.4, planeHeight * 2.4);
-            const glowMaterial = new THREE.ShaderMaterial({
-                uniforms: {
-                    glowColor: { value: new THREE.Color(0x00ffff) },
-                    intensity: { value: 0.4 }
-                },
-                vertexShader: `
-                    varying vec2 vUv;
-                    void main() {
-                        vUv = uv;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    }
-                `,
-                fragmentShader: `
-                    uniform vec3 glowColor;
-                    uniform float intensity;
-                    varying vec2 vUv;
-                    void main() {
-                        float distance = length(vUv - 0.5);
-                        float glow = 1.0 - smoothstep(0.0, 0.5, distance);
-                        gl_FragColor = vec4(glowColor, glow * intensity);
-                    }
-                `,
-                transparent: true,
-                blending: THREE.AdditiveBlending
-            });
-            const glowPlane = new THREE.Mesh(glowGeometry, glowMaterial);
-            glowPlane.position.set(0, 0, -0.5);
-            laptopScreen.add(glowPlane);
-            laptopScreen.add(videoPlane);
-            video.play().catch(e => console.error("Error playing video:", e));
-            scene.add(laptopScreen);
-            laptopGroup.add(laptopScreen);
-        },
-        function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.error('An error happened', error);
-        }
-    );
+function loadLaptopAndScreen() {
+    const laptopLoader = new GLTFLoader();
+    const screenLoader = new GLTFLoader();
+
+    Promise.all([
+        new Promise((resolve) => laptopLoader.load('/models/laptop.glb', resolve)),
+        new Promise((resolve) => screenLoader.load('/models/laptopscreen.glb', resolve))
+    ]).then(([laptopGLTF, screenGLTF]) => {
+        laptop = laptopGLTF.scene;
+        laptopScreen = screenGLTF.scene;
+
+        laptopGroup = new THREE.Group();
+        laptopGroup.add(laptop);
+        laptopGroup.add(laptopScreen);
+
+        laptopScreen.scale.set(0.95, 0.95, 0.95);
+        laptopScreen.position.set(0, 0.35, 0.05);
+        laptopScreen.rotation.set(-0.1, 0, 0);
+
+        const scaleValue = 0.15;
+        laptopGroup.scale.set(scaleValue, scaleValue, scaleValue);
+
+        laptopGroup.position.set(0.5, -0.3, -5);
+        laptopGroup.rotation.set(0.4, -0.2, 0);
+        laptopGroup.userData.clickable = true;
+
+        scene.add(laptopGroup);
+
+        const video = document.createElement('video');
+        video.src = 'models/loop.mp4';
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.crossOrigin = 'anonymous';
+        
+        const videoTexture = new THREE.VideoTexture(video);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+        
+        const aspectRatio = 16 / 9;
+        const planeWidth = 2.45;
+        const planeHeight = planeWidth / aspectRatio;
+        
+        const planeGeometry = new THREE.BufferGeometry();
+        const vertices = new Float32Array([
+            -planeWidth/2, -planeHeight/2, 0,
+             planeWidth/2, -planeHeight/2, 0,
+             planeWidth/2,  planeHeight/2, 0,
+            -planeWidth/2,  planeHeight/2, 0
+        ]);
+        
+        const uvScaleX = 0.9;
+        const uvScaleY = 0.9;
+        const uvOffsetX = (1 - uvScaleX) / 2;
+        const uvOffsetY = 0.1;
+        
+        const uvs = new Float32Array([
+            uvOffsetX, uvOffsetY,
+            uvScaleX + uvOffsetX, uvOffsetY,
+            uvScaleX + uvOffsetX, uvScaleY + uvOffsetY,
+            uvOffsetX, uvScaleY + uvOffsetY
+        ]);
+        
+        const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+        
+        planeGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        planeGeometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+        planeGeometry.setIndex(new THREE.BufferAttribute(indices, 1));
+        
+        const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+        const videoPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        
+        videoPlane.position.set(0.1, 1.1, 0.01);
+        videoPlane.scale.set(1, 1, 1);
+        videoPlane.rotation.set(-0.1, 0, 0);
+
+        laptopScreen.add(videoPlane);
+
+        // Add glow effect
+        const glowGeometry = new THREE.PlaneGeometry(planeWidth * 2.4, planeHeight * 2.4);
+        const glowMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor: { value: new THREE.Color(0x00ffff) },
+                intensity: { value: 0.4 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 glowColor;
+                uniform float intensity;
+                varying vec2 vUv;
+                void main() {
+                    float distance = length(vUv - 0.5);
+                    float glow = 1.0 - smoothstep(0.0, 0.5, distance);
+                    gl_FragColor = vec4(glowColor, glow * intensity);
+                }
+            `,
+            transparent: true,
+            blending: THREE.AdditiveBlending
+        });
+        const glowPlane = new THREE.Mesh(glowGeometry, glowMaterial);
+        glowPlane.position.set(0, 0, -0.5);
+        laptopScreen.add(glowPlane);
+
+        video.play().catch(e => console.error("Error playing video:", e));
+    }).catch(error => {
+        console.error('An error happened', error);
+    });
 }
 
 const renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -329,6 +342,15 @@ function animate() {
         cube.rotation.y += 0.002;
         cube.rotation.z += 0.002;
     }
+
+    if (boardGroup) {
+        const boardFloatAmplitude = 0.3;
+        const boardFloatFrequency = 0.5;
+
+        board.rotation.x += 0.002;
+        board.rotation.y += 0.002;
+        board.rotation.z += 0.002;
+    }
     
     if (laptop && laptopScreen) {
         const laptopFloatAmplitude = 0.1; 
@@ -378,9 +400,9 @@ function animate() {
 }
 
 animate();
-loadLaptop();
-setTimeout(loadLaptopScreen, 50);
+loadLaptopAndScreen();
 loadCube();
+loadBaord();
 
 window.addEventListener('resize', onWindowResize);
 
