@@ -104,7 +104,7 @@ function loadBaord() {
             boardGroup = new THREE.Group();
             boardGroup.add(board);
 
-            const scaleValue = 0.1;
+            const scaleValue = 0.2;
             boardGroup.scale.set(scaleValue, scaleValue, scaleValue);
             boardGroup.position.set(-0.35, -0.25, -5);
             boardGroup.rotation.set(2, -1, 0);
