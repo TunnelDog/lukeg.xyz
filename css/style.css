@@ -56,7 +56,7 @@ body.hovering {
 }
 
 /* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 400px) {
   .navbar a {
     font-size: 14px; /* Reduce font size */
     margin-left: 10px; /* Reduce spacing between items */
