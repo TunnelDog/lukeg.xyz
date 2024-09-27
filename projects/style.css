@@ -82,22 +82,45 @@ body {
     border-radius: 20px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
   }
+  
   .project-title {
     font-size: 24px;
     font-weight: bold;
     color: #333;
   }
+  
   .project-content {
     margin-top: 10px;
     font-size: 18px;
     color: #666;
   }
+  
+  .project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .github-link {
+    background-color: #24292e;
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .github-link:hover {
+    background-color: #0366d6;
+  }
+  
   .project-date {
     font-size: 14px;
     color: #999;
-    text-align: right;
-    margin-top: 10px;
   }
   
 /* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
