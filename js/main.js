@@ -12,8 +12,8 @@ let cubeGroup;
 let laptop;
 let laptopScreen;
 let laptopGroup;
-let board;
-let boardGroup;
+let ball;
+let ballGroup;
 
 let raycaster, mouse;
 let isHovering = false;
@@ -96,20 +96,36 @@ function loadCube() {
     );
 }
 
-function loadBaord() {
+function loadBall() {
     loader.load(
-        '/models/board1.gltf',
+        '/models/ball.gltf',
         function(gltf) {
-            board = gltf.scene;
-            boardGroup = new THREE.Group();
-            boardGroup.add(board);
+            const ballModel = gltf.scene;
+            ballGroup = new THREE.Group();
 
-            const scaleValue = 0.2;
-            boardGroup.scale.set(scaleValue, scaleValue, scaleValue);
-            boardGroup.position.set(-0.35, -0.25, -5);
-            boardGroup.rotation.set(2, -1, 0);
+            for (let i = 0; i < 3; i++) {
+                const ball = ballModel.clone();
+                const individualBallGroup = new THREE.Group();
+                individualBallGroup.add(ball);
 
-            scene.add(boardGroup);
+                const scaleValue = 0.2;
+                individualBallGroup.scale.set(scaleValue, scaleValue, scaleValue);
+
+                const xOffset = (i - 1) * 0.13;
+                let yOffset;
+                if (i === 1) {
+                    yOffset = 0; // Center ball
+                } else if (i === 0) {
+                    yOffset = 0; // Left ball
+                } else {
+                    yOffset = 0; // Right ball
+                }
+                individualBallGroup.position.set(-0.35 + xOffset, -0.3 + yOffset, -5);
+
+                ballGroup.add(individualBallGroup);
+            }
+
+            scene.add(ballGroup);
         }
     );
 }
@@ -343,13 +359,25 @@ function animate() {
         cube.rotation.z += 0.002;
     }
 
-    if (boardGroup) {
-        const boardFloatAmplitude = 0.3;
-        const boardFloatFrequency = 0.5;
+    if (ballGroup) {
+        ballGroup.children.forEach((individualBallGroup, index) => {
+            const ball = individualBallGroup.children[0];
+            const ballFloatAmplitude = 0.05;
+            const ballFloatFrequency = 0.5;
+            const ballFloatPhase = index * (Math.PI * 2 / 3);
 
-        board.rotation.x += 0.002;
-        board.rotation.y += 0.002;
-        board.rotation.z += 0.002;
+            const verticalOffset = Math.sin(time * ballFloatFrequency + ballFloatPhase) * ballFloatAmplitude;
+            
+            const initialY = individualBallGroup.userData.initialY || individualBallGroup.position.y;
+            
+            if (!individualBallGroup.userData.initialY) {
+                individualBallGroup.userData.initialY = initialY;
+            }
+            individualBallGroup.position.y = initialY + verticalOffset;
+            ball.rotation.x = Math.sin(time * 0.5 + index) * 0.50;
+            ball.rotation.y = Math.cos(time * 0.5 + index) * 0.50;
+            ball.rotation.z = Math.sin(time * 0.7 + index) * 0.50;
+        });
     }
     
     if (laptop && laptopScreen) {
@@ -402,7 +430,7 @@ function animate() {
 animate();
 loadLaptopAndScreen();
 loadCube();
-loadBaord();
+loadBall();
 
 window.addEventListener('resize', onWindowResize);
 
