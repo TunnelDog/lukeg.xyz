@@ -14,6 +14,8 @@ let laptopScreen;
 let laptopGroup;
 let ball;
 let ballGroup;
+let racket;
+let racketGroup;
 
 let raycaster, mouse;
 let isHovering = false;
@@ -96,6 +98,27 @@ function loadCube() {
     );
 }
 
+function loadRacket() {
+    loader.load(
+        'models/racket.glb',
+        function(gltf) {
+            racket = gltf.scene;
+            racketGroup = new THREE.Group();
+            racketGroup.add(racket);
+
+            const scaleValue = 0.8;
+            racketGroup.scale.set(scaleValue, scaleValue, scaleValue);
+            racketGroup.position.x = -0.23;
+            racketGroup.position.y = -0.65;
+            racketGroup.position.z = -6;
+            racketGroup.rotation.x = 0.6;
+            racketGroup.rotation.z = 0.3;
+            scene.add(racketGroup);
+            
+        }
+    )
+}
+
 function loadBall() {
     loader.load(
         '/models/ball.gltf',
@@ -108,7 +131,7 @@ function loadBall() {
                 const individualBallGroup = new THREE.Group();
                 individualBallGroup.add(ball);
 
-                const scaleValue = 0.2;
+                const scaleValue = 0.14;
                 individualBallGroup.scale.set(scaleValue, scaleValue, scaleValue);
 
                 const xOffset = (i - 1) * 0.13;
@@ -425,12 +448,31 @@ function animate() {
 
     checkIntersection();
     renderer.render(scene, camera);
+
+    if (racketGroup) {
+        const racketFloatAmplitude = 0.1;
+        const racketFloatFrequency = 0.5;
+        const racketRotationAmplitude = 0.3;
+        const racketRotationFrequency = 0.9;
+
+        // Vertical floating motion
+        const verticalOffset = Math.sin(time * racketFloatFrequency) * racketFloatAmplitude;
+        racketGroup.position.y = -0.65 + verticalOffset;
+
+        // Side-to-side rotation
+        const rotationOffset = Math.sin(time * racketRotationFrequency) * racketRotationAmplitude;
+        racketGroup.rotation.y = rotationOffset;
+    }
+
+    checkIntersection();
+    renderer.render(scene, camera);
 }
 
 animate();
 loadLaptopAndScreen();
 loadCube();
 loadBall();
+loadRacket();
 
 window.addEventListener('resize', onWindowResize);
 
