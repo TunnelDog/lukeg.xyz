@@ -8,61 +8,63 @@
 }
 
 body {
-    min-height: 100vh;
-    background-color: #E6E6E9;
-  }
+  min-height: 100vh;
+  background-color: #E6E6E9;
+}
 
-  .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px;
-    display: flex;
-    justify-content: right;
-    align-items: center;
-    z-index: 100;
-    background-color: #E6E6E9;
-  }
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  z-index: 100;
+  transition: transform 0.3s ease-in-out;
+  background-color: rgba(230, 230, 233, 0.9); 
+}
+
+.navbar a {
+  position: relative;
+  font-size: 18px;
+  color: #3C4F76;
+  font-weight: 500;
+  text-decoration: none;
+  margin-left: 25px;
+  white-space: nowrap;
+}
+
+.navbar a::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: #3C4F76;
+  transition: .3s;
+}
+
+.navbar a:hover::before {
+  width: 100%;
+}
+
+.header.hidden {
+  transform: translateY(-100%);
+}
   
-  .navbar a {
-    position: relative;
-    font-size: 18px;
-    color: #3C4F76;
-    font-weight: 500;
-    text-decoration: none;
-    margin-left: 25px;
-    white-space: nowrap; /* Prevent text from wrapping */
-  }
-  
-  /* Keep your existing hover effect styles */
-  .navbar a::before {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 0%;
-    height: 2px;
-    background: #3C4F76;
-    transition: .3s;
-  }
-  
-  .navbar a:hover::before {
-    width: 100%;
-  }
-  
-  /* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
   @media screen and (max-width: 400px) {
     .navbar a {
-      font-size: 14px; /* Reduce font size */
-      margin-left: 10px; /* Reduce spacing between items */
+      font-size: 14px;
+      margin-left: 10px;
     }
     
-    /* If needed, you can adjust the container of the navbar */
     .navbar {
       display: flex;
       justify-content: space-between;
-      padding: 0 10px; /* Add some padding on the sides */
+      padding: 0 10px;
     }
   }
   
@@ -101,7 +103,6 @@ body {
     margin-top: 10px;
   }
   
-/* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
 @media screen and (max-width: 600px) {
     .topnav a, .topnav-right {
       float: none;
