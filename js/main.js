@@ -83,10 +83,10 @@ function loadCube() {
             scene.add(cubeGroup);
             
             if (window.innerWidth > window.innerHeight) {
-                cubeGroup.position.set(-0.92, 0.3, -5);
+                cubeGroup.position.set(-0.92, 0.35, -5);
             }
             else {
-                cubeGroup.position.set(-0.75, 0.6, -5);
+                cubeGroup.position.set(-0.75, 0.43, -5);
             }
         },
         function (xhr) {
