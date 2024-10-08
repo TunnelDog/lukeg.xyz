@@ -404,8 +404,8 @@ function animate() {
     }
     
     if (laptop && laptopScreen) {
-        const laptopFloatAmplitude = 0.1; 
-        const laptopFloatFrequency = 0.1;
+        const laptopFloatAmplitude = 0.01; 
+        const laptopFloatFrequency = 0.01;
         
         const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
         laptop.position.y = -0.4 + verticalOffset;
@@ -427,7 +427,7 @@ function animate() {
     }
 
     if (laptopGroup) {
-        const laptopFloatAmplitude = 0.2; 
+        const laptopFloatAmplitude = 0.05; 
         const laptopFloatFrequency = 0.5;
         
         const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
