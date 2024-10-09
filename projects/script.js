@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let prevScrollPos = window.scrollY;
   const navbar = document.getElementById('navbar');
   const navbarHeight = navbar.offsetHeight;
-  const scrollThreshold = 5; // scroll sensitivity 
+  const scrollThreshold = 2.5; // scroll sensitivity 
 
   let hideTimeout;
 
