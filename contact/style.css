@@ -29,10 +29,9 @@ body {
     font-weight: 500;
     text-decoration: none;
     margin-left: 25px;
-    white-space: nowrap; /* Prevent text from wrapping */
+    white-space: nowrap; 
   }
   
-  /* Keep your existing hover effect styles */
   .navbar a::before {
     content: '';
     position: absolute;
@@ -48,18 +47,16 @@ body {
     width: 100%;
   }
   
-  /* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
   @media screen and (max-width: 400px) {
     .navbar a {
-      font-size: 14px; /* Reduce font size */
-      margin-left: 10px; /* Reduce spacing between items */
+      font-size: 14px;
+      margin-left: 10px;
     }
     
-    /* If needed, you can adjust the container of the navbar */
     .navbar {
       display: flex;
       justify-content: space-between;
-      padding: 0 10px; /* Add some padding on the sides */
+      padding: 0 10px; 
     }
   }
   
@@ -124,7 +121,7 @@ body {
   cursor: pointer;
   
 }
-/* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
+
 @media screen and (max-width: 600px) {
     .topnav a, .topnav-right {
       float: none;
