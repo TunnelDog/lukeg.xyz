@@ -1,0 +1,158 @@
+body {
+  background-color: #E6E6E9;
+  min-height: 100vh;
+}
+
+.blog-container {
+  position: relative;
+  z-index: 1;
+  padding: 100px 20px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.blog-container h1 {
+  color: #3C4F76;
+  font-size: 4rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.blog-post {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 3rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.blog-post h2 {
+  color: #000000;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.blog-meta {
+  margin-bottom: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.blog-content {
+  color: #333;
+  line-height: 1.8;
+  font-size: 1.2rem;
+}
+
+.blog-content p {
+  margin-bottom: 1.5rem;
+}
+
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 2rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.blog-content .image-caption {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: -1.5rem;
+  margin-bottom: 2rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.image-grid img {
+  margin: 0;
+  width: 100%;
+  margin-bottom: 0 rem;
+}
+
+.image-grid .image-caption {
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+}
+
+.blog-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Tablet and smaller desktop screens */
+@media screen and (max-width: 1200px) {
+  .blog-container h1 {
+    font-size: 3.5rem;
+  }
+  
+  .blog-grid {
+    max-width: 800px;
+  }
+  
+  .blog-post {
+    padding: 2.5rem;
+  }
+  
+  .blog-post h2 {
+    font-size: 2rem;
+  }
+  
+  .blog-content {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile devices */
+@media screen and (max-width: 768px) {
+  .blog-container {
+    padding: 80px 15px 15px;
+  }
+
+  .blog-container h1 {
+    font-size: 2.5rem;
+  }
+
+  .blog-grid {
+    padding: 0.5rem;
+  }
+
+  .blog-post {
+    padding: 1.5rem;
+  }
+
+  .blog-post h2 {
+    font-size: 1.5rem;
+  }
+  
+  .blog-meta {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .blog-content {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .image-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+} 
