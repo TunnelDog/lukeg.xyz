@@ -103,6 +103,37 @@ body {
     margin-top: 10px;
   }
   
+.poem-image {
+  max-width: 600px;   /* same as before — keeps image nicely scaled */
+  width: 100%;        /* makes it responsive to screen width */
+  margin: 1em auto;   /* centers both image + caption */
+}
+
+.poem-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+  
+.image-caption {
+  font-size: 0.7em;       /* smaller text */
+  color: grey;             /* grey text */
+  text-align: left;       /* aligns it to the right edge */
+  margin-top: 0.1em;
+  margin-bottom: 1em;      /* space before next section */
+  font-style: italic;      /* optional, looks elegant for captions */
+}
+
+.poem-image figcaption {
+  font-size: 0.9em;
+  color: grey;
+  font-style: italic;
+  margin-top: 0.3em;
+  text-align: left;  /* aligns to the same edge as the image */
+}
+
 @media screen and (max-width: 600px) {
     .topnav a, .topnav-right {
       float: none;
