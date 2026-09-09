@@ -23,8 +23,11 @@ let isHovering = false;
 raycaster = new THREE.Raycaster();
 mouse = new THREE.Vector2();
 
-// Procedural stepped gradient so MeshToonMaterial actually cel-shades
-// instead of falling back to smooth shading (no external texture needed).
+// Procedural gradient so MeshToonMaterial actually cel-shades instead of
+// falling back to smooth shading (no external texture needed). Uses linear
+// filtering so shading eases between bands instead of hard-cutting - with
+// NearestFilter, the subtle per-frame letter wobble kept flipping surface
+// normals across step boundaries, which read as a flicker.
 function createToonGradientTexture(steps) {
     const canvas = document.createElement('canvas');
     canvas.width = steps;
@@ -36,13 +39,14 @@ function createToonGradientTexture(steps) {
         context.fillRect(i, 0, 1, 1);
     }
     const texture = new THREE.Texture(canvas);
-    texture.minFilter = THREE.NearestFilter;
-    texture.magFilter = THREE.NearestFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
     texture.needsUpdate = true;
     return texture;
 }
 
-const toonGradientMap = createToonGradientTexture(4);
+const toonGradientMap = createToonGradientTexture(8);
 
 function createLetter(letterFile, xOffset) {
     loader.load(
@@ -455,9 +459,9 @@ function animate() {
     const time = Date.now() * 0.001;
 
     accentLight.position.set(
-        Math.sin(time * 0.3) * 3.5,
-        2 + Math.cos(time * 0.4) * 1.2,
-        3 + Math.cos(time * 0.3) * 3.5
+        Math.sin(time * 0.12) * 3.5,
+        2 + Math.cos(time * 0.16) * 1.2,
+        3 + Math.cos(time * 0.12) * 3.5
     );
 
     if (particles) {
