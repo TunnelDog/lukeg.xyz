@@ -16,22 +16,40 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 20px;
+    padding: 20px clamp(12px, 4vw, 20px);
     display: flex;
     justify-content: right;
     align-items: center;
     z-index: 100;
   }
+
+  /* Always a single, non-wrapping row - font size and gap scale fluidly
+     with viewport width instead of jumping at one fixed breakpoint, so
+     the links never spill onto a second row on phones. */
+  .navbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: clamp(8px, 2.5vw, 25px);
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .navbar a {
     position: relative;
-    font-size: 18px;
+    flex: 0 0 auto;
+    font-size: clamp(12px, 3.8vw, 18px);
     color: #3C4F76;
     font-weight: 500;
     text-decoration: none;
-    margin-left: 25px;
-    white-space: nowrap; 
+    white-space: nowrap;
   }
-  
+
   .navbar a::before {
     content: '';
     position: absolute;
@@ -42,7 +60,7 @@ body {
     background: #3C4F76;
     transition: .3s;
   }
-  
+
   .navbar a:hover::before {
     width: 100%;
   }
@@ -53,19 +71,6 @@ body {
 
   .navbar a.active::before {
     width: 100%;
-  }
-
-  @media screen and (max-width: 400px) {
-    .navbar a {
-      font-size: 14px;
-      margin-left: 10px;
-    }
-    
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      padding: 0 10px; 
-    }
   }
   
   .contact-container {
