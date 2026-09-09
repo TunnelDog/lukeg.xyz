@@ -23,6 +23,31 @@ let isHovering = false;
 raycaster = new THREE.Raycaster();
 mouse = new THREE.Vector2();
 
+// Procedural gradient so MeshToonMaterial actually cel-shades instead of
+// falling back to smooth shading (no external texture needed). Uses linear
+// filtering so shading eases between bands instead of hard-cutting - with
+// NearestFilter, the subtle per-frame letter wobble kept flipping surface
+// normals across step boundaries, which read as a flicker.
+function createToonGradientTexture(steps) {
+    const canvas = document.createElement('canvas');
+    canvas.width = steps;
+    canvas.height = 1;
+    const context = canvas.getContext('2d');
+    for (let i = 0; i < steps; i++) {
+        const value = Math.round((i / (steps - 1)) * 255);
+        context.fillStyle = `rgb(${value},${value},${value})`;
+        context.fillRect(i, 0, 1, 1);
+    }
+    const texture = new THREE.Texture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    texture.needsUpdate = true;
+    return texture;
+}
+
+const toonGradientMap = createToonGradientTexture(8);
+
 function createLetter(letterFile, xOffset) {
     loader.load(
         `models/newletters/${letterFile}/${letterFile}.gltf`,
@@ -30,7 +55,7 @@ function createLetter(letterFile, xOffset) {
             const letter = gltf.scene.clone();
             letter.traverse(child => {
                 if (child instanceof THREE.Mesh) {
-                    const material = new THREE.MeshToonMaterial({ color: 0x3C4F76 });
+                    const material = new THREE.MeshToonMaterial({ color: 0x3C4F76, gradientMap: toonGradientMap });
                     child.material = material;
                 }
             });
@@ -236,7 +261,7 @@ function loadLaptopAndScreen() {
         const glowMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 glowColor: { value: new THREE.Color(0x00ffff) },
-                intensity: { value: 0.4 }
+                intensity: { value: 0.45 }
             },
             vertexShader: `
                 varying vec2 vUv;
@@ -268,8 +293,59 @@ function loadLaptopAndScreen() {
     });
 }
 
-const renderer = new THREE.WebGLRenderer({ alpha: true });
+// Soft round sprite (radial gradient) used for the ambient dust particles
+function createParticleTexture() {
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d');
+    const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, size, size);
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+}
+
+let particles;
+let particleSpeeds;
+
+function createParticles() {
+    const particleCount = 120;
+    const positions = new Float32Array(particleCount * 3);
+    particleSpeeds = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 3.6;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 2.6;
+        positions[i * 3 + 2] = -10 + Math.random() * 12;
+        particleSpeeds[i] = 0.0006 + Math.random() * 0.0012;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({
+        map: createParticleTexture(),
+        color: 0x9fc2ff,
+        size: 3,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0.4,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+
+    particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+}
+
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const canvas = renderer.domElement;
 canvas.style.pointerEvents = "auto";
@@ -281,6 +357,25 @@ const topLight = new THREE.DirectionalLight(0xffffff, 1);
 topLight.position.set(0, 10, 30)
 topLight.castShadow = false;
 scene.add(topLight);
+
+// Soft fill so the toon shading doesn't crush to black in shadow
+const fillLight = new THREE.AmbientLight(0xffffff, 0.12);
+scene.add(fillLight);
+
+// Cool-toned hemisphere light for a touch of sky/ground color variation
+const hemiLight = new THREE.HemisphereLight(0xbfd4ff, 0x2a3a5c, 0.1);
+scene.add(hemiLight);
+
+// Rim light from behind/side to pop the edges of the models
+const rimLight = new THREE.DirectionalLight(0x6ea8ff, 0.2);
+rimLight.position.set(-15, 6, -25);
+scene.add(rimLight);
+
+// Slowly orbiting accent light so the toon-shaded facets shift and catch
+// the light over time instead of looking static
+const accentLight = new THREE.PointLight(0x7fd4ff, 0.35, 40);
+accentLight.position.set(0, 3, 4);
+scene.add(accentLight);
 
 function updateCameraAspect() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -297,7 +392,7 @@ function onWindowResize() {
     camera.fov = 0.34 * (1 / aspect);
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    render();
+    renderer.render(scene, camera);
 }
 
 function adjustForMobile() {
@@ -362,6 +457,23 @@ function animate() {
     requestAnimationFrame(animate);
 
     const time = Date.now() * 0.001;
+
+    accentLight.position.set(
+        Math.sin(time * 0.12) * 3.5,
+        2 + Math.cos(time * 0.16) * 1.2,
+        3 + Math.cos(time * 0.12) * 3.5
+    );
+
+    if (particles) {
+        const posAttr = particles.geometry.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            let y = posAttr.getY(i) + particleSpeeds[i];
+            if (y > 1.3) y = -1.3;
+            posAttr.setY(i, y);
+        }
+        posAttr.needsUpdate = true;
+        particles.rotation.y += 0.0003;
+    }
 
     letters.forEach((letter, index) => {
         const waveFrequency = 1.5;
@@ -473,6 +585,7 @@ loadLaptopAndScreen();
 loadCube();
 loadBall();
 loadRacket();
+createParticles();
 
 window.addEventListener('resize', onWindowResize);
 
