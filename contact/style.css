@@ -46,7 +46,15 @@ body {
   .navbar a:hover::before {
     width: 100%;
   }
-  
+
+  .navbar a.active {
+    font-weight: 700;
+  }
+
+  .navbar a.active::before {
+    width: 100%;
+  }
+
   @media screen and (max-width: 400px) {
     .navbar a {
       font-size: 14px;
