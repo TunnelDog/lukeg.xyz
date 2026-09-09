@@ -257,7 +257,7 @@ function loadLaptopAndScreen() {
         const glowMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 glowColor: { value: new THREE.Color(0x00ffff) },
-                intensity: { value: 0.55 }
+                intensity: { value: 0.45 }
             },
             vertexShader: `
                 varying vec2 vUv;
@@ -342,8 +342,6 @@ function createParticles() {
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
 
 const canvas = renderer.domElement;
 canvas.style.pointerEvents = "auto";
@@ -351,27 +349,27 @@ document.getElementById("container3D").appendChild(canvas);
 
 camera.position.z = 300;
 
-const topLight = new THREE.DirectionalLight(0xffffff, 1.1);
+const topLight = new THREE.DirectionalLight(0xffffff, 1);
 topLight.position.set(0, 10, 30)
 topLight.castShadow = false;
 scene.add(topLight);
 
 // Soft fill so the toon shading doesn't crush to black in shadow
-const fillLight = new THREE.AmbientLight(0xffffff, 0.45);
+const fillLight = new THREE.AmbientLight(0xffffff, 0.12);
 scene.add(fillLight);
 
-// Cool-toned hemisphere light for a bit of sky/ground color variation
-const hemiLight = new THREE.HemisphereLight(0xbfd4ff, 0x2a3a5c, 0.35);
+// Cool-toned hemisphere light for a touch of sky/ground color variation
+const hemiLight = new THREE.HemisphereLight(0xbfd4ff, 0x2a3a5c, 0.1);
 scene.add(hemiLight);
 
 // Rim light from behind/side to pop the edges of the models
-const rimLight = new THREE.DirectionalLight(0x6ea8ff, 0.7);
+const rimLight = new THREE.DirectionalLight(0x6ea8ff, 0.2);
 rimLight.position.set(-15, 6, -25);
 scene.add(rimLight);
 
 // Slowly orbiting accent light so the toon-shaded facets shift and catch
 // the light over time instead of looking static
-const accentLight = new THREE.PointLight(0x7fd4ff, 1.4, 60);
+const accentLight = new THREE.PointLight(0x7fd4ff, 0.35, 40);
 accentLight.position.set(0, 3, 4);
 scene.add(accentLight);
 
