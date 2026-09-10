@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -27,6 +31,12 @@ body.hovering {
   justify-content: right;
   align-items: center;
   z-index: 100;
+  transition: transform 0.3s ease-in-out;
+  background-color: rgba(230, 230, 233, 0.9);
+}
+
+.header.hidden {
+  transform: translateY(-100%);
 }
 
 /* Always a single, non-wrapping row - font size and gap scale fluidly
@@ -80,10 +90,130 @@ body.hovering {
   width: 100%;
 }
 
+.home-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
 #container3D canvas {
   width: 100vw !important;
   height: 100vh !important;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
+}
+
+/* --- About section --- */
+.about {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  width: 100%;
+  padding: 250px 0px;
+  scroll-margin-top: 100px;
+}
+
+#container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.main {
+  width: 650px;
+  max-width: 95%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-text h1 {
+  color: #3C4F76;
+  font-size: 28px;
+  text-transform: 25px;
+  margin-bottom: 0.4em;
+}
+.about-text p {
+  color: black;
+  letter-spacing: 1px;
+  line-height: 28px;
+  font-size: 18px;
+  margin-bottom: 45px;
+}
+
+button {
+  padding: 15px 15px;
+  font-size: 16px;
+  color: #e6e6e9;
+  border: none;
+  border-radius: 50px;
+  background-color: #3C4F76;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 4px;
+}
+
+/* --- Projects section --- */
+#projects.container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 100px 20px 60px;
+  text-align: center;
+  scroll-margin-top: 100px;
+}
+
+#projects h1 {
+  font-size: 50px;
+  color: #333;
+}
+
+.project {
+  margin-top: 40px;
+  text-align: left;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.project-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.project-content {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #666;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.github-link {
+  background-color: #24292e;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.github-link:hover {
+  background-color: #0366d6;
+}
+
+.project-date {
+  font-size: 14px;
+  color: #999;
 }
