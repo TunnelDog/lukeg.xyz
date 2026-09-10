@@ -19,19 +19,133 @@
 </head>
 <body>
 
-  <header class="header">
+  <header class="header" id="navbar">
     <nav class="navbar">
-      <a href="/index.html" class="active">Home</a>
-      <a href="/about/index.html">About</a>
-      <a href="/projects/index.html">Projects</a>
+      <a href="/index.html#home" class="nav-link active" data-section="home">Home</a>
+      <a href="/index.html#about" class="nav-link" data-section="about">About</a>
+      <a href="/index.html#projects" class="nav-link" data-section="projects">Projects</a>
       <a href="/blog/index.html">Blog</a>
       <a href="/contact/contact.html">Contact</a>
     </nav>
   </header>
 
+  <section id="home" class="home-section">
     <div id="container3D"></div>
+  </section>
 
+  <section id="about" class="about">
+    <div id="container"></div>
+    <div class="main">
+      <div class="about-text">
+        <h1>About Me</h1>
+        <p>I'm Luke, a student originally from Midland,Texas,
+          currently enrolled at Texas Tech University studying
+          Computer Engineering. My interests include back-end development,
+          UI/web design, PCB/circuit design, and tinkering with small
+          electronics. My journey into the world of computing started
+          in 2013 when I learned how to host my own Minecraft server.
+          Since then, my curiosity has continued to grow, driving me
+          towards more ambitious projects and discoveries.
+        </p>
+
+        <button type="button" onclick="window.open('https://github.com/TunnelDog', '_blank')">GitHub</button>
+        <button type="button" class="cv" onclick="window.open('/about/assests/cv.pdf', '_blank')">My CV</button>
+        <button type="button" onclick="window.open('https://www.linkedin.com/in/luke-gamertsfelder-0436962bb', '_blank')">LinkedIn</button>
+        <button type="button" onclick="window.location.href = '/poetry/index.html'">Poetry</button>
+        <button type="button" onclick="window.location.href = '/blog/index.html'">Blog</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="container">
+    <h1>Projects</h1>
+
+    <div class="project">
+      <div class="project-title">Cognizant Flipper</div>
+      <div class="project-content">
+        Inspired by the Rorschach test and Terry Davis's 'God Phrases',
+        this Flipper Zero application displays random words from a word bank on the device.
+      </div>
+      <div class="project-footer">
+        <a href="https://github.com/TunnelDog/Cognizant-Flipper" class="github-link">View on GitHub</a>
+        <div class="project-date">September 26, 2024</div>
+      </div>
+    </div>
+
+    <div class="project">
+      <div class="project-title">FlipLinks - Flipper Zero [WIP]</div>
+      <div class="project-content">
+        Work-in-progress application for the Flipper Zero.
+        Users can specify their social links and then transmit
+        the selected signal using the Flipper's NFC capability.
+      </div>
+      <div class="project-footer">
+        <a href="https://github.com/TunnelDog/FlipLinks" class="github-link">View on GitHub</a>
+        <div class="project-date">June 23, 2024</div>
+      </div>
+    </div>
+
+    <div class="project">
+      <div class="project-title">Pocket E-Reader [WIP]</div>
+      <div class="project-content">
+        ePaper display mounted on a Raspberry Pi Zero.
+        This work-in-progress project takes PDF documents from the
+        micro SD card and formats the text to fit the display accordingly.
+      </div>
+      <div class="project-footer">
+        <a href="https://github.com/TunnelDog" class="github-link">View on GitHub</a>
+        <div class="project-date">June 10, 2024</div>
+      </div>
+    </div>
+
+    <div class="project">
+      <div class="project-title">LukeHub - YouTube Recreation [WIP]</div>
+      <div class="project-content">
+        Recreation of the YouTube video platform.
+        This work-in-progress project models after
+        the YouTube platform. It won't be as polished,
+        but it will serve as proof of my computational abilities.
+      </div>
+      <div class="project-footer">
+        <a href="https://github.com/TunnelDog/YouTube-Recreation" class="github-link">View on GitHub</a>
+        <div class="project-date">May 1, 2024</div>
+      </div>
+    </div>
+
+    <div class="project">
+      <div class="project-title">This Website</div>
+      <div class="project-content">
+        Although web development isn't my career's top priority,
+        I still find enjoyment in the creative side of programming.
+        This website showcases my skills in HTML, CSS, JavaScript,
+        and the Three JS library.
+      </div>
+      <div class="project-footer">
+        <a href="https://github.com/TunnelDog/lukeg.xyz" class="github-link">View on GitHub</a>
+        <div class="project-date">March 6, 2024</div>
+      </div>
+    </div>
+
+    <div class="project">
+      <div class="project-title">Dual Time Zone GPS Clock</div>
+      <div class="project-content">
+        A Christmas gift for my father,<br>
+        This Arduino GPS-based clock picks up the current time
+        and date from GPS radio signals. It then displays the
+        current GMT time and converts it to the time zone where
+        the clock is located, displaying that time as well.
+      </div>
+      <div class="project-footer">
+        <a href="https://github.com/TunnelDog/DualTimeClock" class="github-link">View on GitHub</a>
+        <div class="project-date">December 24, 2023</div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="/about/about.js"></script>
   <script type="module" src="js/main.js"></script>
+  <script src="/js/nav-scroll.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
