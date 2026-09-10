@@ -51,4 +51,19 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: [0.25, 0.5, 0.75] });
 
   sections.forEach(section => observer.observe(section));
+
+  // Fade + rise .reveal elements into place the first time they scroll into view
+  const revealTargets = document.querySelectorAll('.reveal');
+  if (revealTargets.length) {
+    const revealObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    revealTargets.forEach(target => revealObserver.observe(target));
+  }
 });

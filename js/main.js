@@ -377,8 +377,23 @@ const accentLight = new THREE.PointLight(0x7fd4ff, 0.35, 40);
 accentLight.position.set(0, 3, 4);
 scene.add(accentLight);
 
+// Base FOV tuned for a typical desktop window. On narrower/taller windows
+// (mobile portrait) we widen the FOV so the letters and props still fit
+// horizontally, but we never go narrower than the base - going narrower is
+// what was causing the scene to zoom in and clip the props on short, wide
+// windows. This same formula runs on load AND on resize so there's no
+// mismatch/pop between the first paint and the first resize.
+const BASE_FOV = 0.3;
+function computeFov(aspect) {
+    return Math.max(BASE_FOV, 0.34 / aspect);
+}
+
+let lastKnownWidth = window.innerWidth;
+
 function updateCameraAspect() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = aspect;
+    camera.fov = computeFov(aspect);
     camera.updateProjectionMatrix();
 }
 
@@ -387,11 +402,14 @@ function updateRendererSize() {
 }
 
 function onWindowResize() {
-    const aspect = window.innerWidth / window.innerHeight;
-    camera.aspect = aspect;
-    camera.fov = 0.34 * (1 / aspect);
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    // Mobile browsers fire a resize event when the address bar shows/hides
+    // during scroll - that only changes innerHeight, not innerWidth. Ignore
+    // it so the scene doesn't visibly rescale the instant the page scrolls.
+    if (window.innerWidth === lastKnownWidth) return;
+    lastKnownWidth = window.innerWidth;
+
+    updateCameraAspect();
+    updateRendererSize();
     renderer.render(scene, camera);
 }
 
@@ -588,7 +606,3 @@ loadRacket();
 createParticles();
 
 window.addEventListener('resize', onWindowResize);
-
-if (window.innerWidth < window.innerHeight) {
-    onWindowResize();
-}
