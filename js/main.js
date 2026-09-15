@@ -4,6 +4,16 @@ import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/l
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(0.3, window.innerWidth / window.innerHeight, 1, 1000);
 
+// The hero content is split into three groups so each can recede its own
+// way once the user scrolls past the hero - that's what lets the starfield
+// read as a single continuous scene that the hero recedes into, rather than
+// a hard cut. The letters just scale down in place; the props exit sideways
+// (cube/balls/racket left, laptop right).
+const lettersRoot = new THREE.Group();
+const leftExitRoot = new THREE.Group();
+const rightExitRoot = new THREE.Group();
+scene.add(lettersRoot, leftExitRoot, rightExitRoot);
+
 const loader = new GLTFLoader();
 
 const letters = [];
@@ -76,7 +86,7 @@ function createLetter(letterFile, xOffset) {
             letterGroup.position.x = xOffset;
             letterGroup.scale.set(0.5, 0.5, 0.5);
             
-            scene.add(letterGroup);
+            lettersRoot.add(letterGroup);
             letters.push(letterGroup);
         },
         function (xhr) {
@@ -105,7 +115,7 @@ function loadCube() {
             const scaleValue = 0.2;
             cubeGroup.scale.set(scaleValue, scaleValue, scaleValue);
             
-            scene.add(cubeGroup);
+            leftExitRoot.add(cubeGroup);
             
             if (window.innerWidth > window.innerHeight) {
                 cubeGroup.position.set(-0.92, 0.35, -5);
@@ -138,7 +148,7 @@ function loadRacket() {
             racketGroup.position.z = -6;
             racketGroup.rotation.x = 0.6;
             racketGroup.rotation.z = 0.3;
-            scene.add(racketGroup);
+            leftExitRoot.add(racketGroup);
             
         }
     )
@@ -173,7 +183,7 @@ function loadBall() {
                 ballGroup.add(individualBallGroup);
             }
 
-            scene.add(ballGroup);
+            leftExitRoot.add(ballGroup);
         }
     );
 }
@@ -193,9 +203,13 @@ function loadLaptopAndScreen() {
         laptopGroup.add(laptop);
         laptopGroup.add(laptopScreen);
 
+        // The screen has to share the base's exact position/rotation to stay
+        // seated on it - they're separate GLTF files parented as siblings,
+        // not one mesh, and laptopGroup's per-frame float/tilt below moves
+        // both together, so any offset here would visibly separate them.
         laptopScreen.scale.set(0.95, 0.95, 0.95);
-        laptopScreen.position.set(0, 0.35, 0.05);
-        laptopScreen.rotation.set(-0.1, 0, 0);
+        laptopScreen.position.copy(laptop.position);
+        laptopScreen.rotation.copy(laptop.rotation);
 
         const scaleValue = 0.15;
         laptopGroup.scale.set(scaleValue, scaleValue, scaleValue);
@@ -204,7 +218,7 @@ function loadLaptopAndScreen() {
         laptopGroup.rotation.set(0.4, -0.2, 0);
         laptopGroup.userData.clickable = true;
 
-        scene.add(laptopGroup);
+        rightExitRoot.add(laptopGroup);
 
         const video = document.createElement('video');
         video.src = 'models/loop.mp4';
@@ -293,63 +307,75 @@ function loadLaptopAndScreen() {
     });
 }
 
-// Soft round sprite (radial gradient) used for the ambient dust particles
-function createParticleTexture() {
-    const size = 64;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const context = canvas.getContext('2d');
-    const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-    gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(1, 'rgba(255,255,255,0)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, size, size);
-    const texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-    return texture;
+// --- Background starfield ---------------------------------------------
+// Rendered as its own scene/camera so it can use a completely different
+// scale and FOV than the telephoto hero shot above, but drawn into the
+// same canvas/renderer so the whole page reads as one 3D backdrop. Depth
+// no longer autoplays - it's tied to scroll position (see animate()) so
+// scrolling the page reads as flying forward through the dots, and the
+// dots stay visible behind every section, not just the hero.
+const dotsScene = new THREE.Scene();
+const dotsCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+dotsCamera.position.z = 10;
+
+const dots = [];
+const DOTS_Z_RANGE = 1000; // stars span [-DOTS_Z_RANGE, DOTS_Z_RANGE]
+const DOTS_GEOMETRY = new THREE.SphereGeometry(0.5, 10, 8);
+const DOTS_MATERIAL = new THREE.MeshBasicMaterial({ color: 0x3c4f76 });
+
+function createDots() {
+    for (let z = -DOTS_Z_RANGE; z < DOTS_Z_RANGE; z += 10) {
+        const dot = new THREE.Mesh(DOTS_GEOMETRY, DOTS_MATERIAL);
+        dot.position.x = Math.random() * 2000 - 500;
+        dot.position.y = Math.random() * 2000 - 500;
+        dot.position.z = z;
+        dot.userData.baseZ = z;
+        dot.scale.setScalar(2.5);
+        dotsScene.add(dot);
+        dots.push(dot);
+    }
+}
+createDots();
+
+// How far (in world units) the starfield travels per pixel scrolled, and
+// the smoothing factor that turns scroll jumps into an eased drift.
+const SCROLL_FLIGHT_SPEED = 1.1;
+const SCROLL_FLIGHT_EASE = 0.06;
+let flightOffset = 0;
+
+function updateDots() {
+    const targetOffset = window.scrollY * SCROLL_FLIGHT_SPEED;
+    flightOffset += (targetOffset - flightOffset) * SCROLL_FLIGHT_EASE;
+
+    for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+        let z = dot.userData.baseZ + flightOffset;
+        z = ((z + DOTS_Z_RANGE) % (DOTS_Z_RANGE * 2) + DOTS_Z_RANGE * 2) % (DOTS_Z_RANGE * 2) - DOTS_Z_RANGE;
+        dot.position.z = z;
+    }
 }
 
-let particles;
-let particleSpeeds;
+let dotsOldX = 0;
+let dotsOldY = 0;
 
-function createParticles() {
-    const particleCount = 120;
-    const positions = new Float32Array(particleCount * 3);
-    particleSpeeds = new Float32Array(particleCount);
-
-    for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 3.6;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 2.6;
-        positions[i * 3 + 2] = -10 + Math.random() * 12;
-        particleSpeeds[i] = 0.0006 + Math.random() * 0.0012;
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    const material = new THREE.PointsMaterial({
-        map: createParticleTexture(),
-        color: 0x9fc2ff,
-        size: 3,
-        sizeAttenuation: false,
-        transparent: true,
-        opacity: 0.4,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-    });
-
-    particles = new THREE.Points(geometry, material);
-    scene.add(particles);
+function onDotsMouseMove(event) {
+    const changeX = event.clientX - dotsOldX;
+    const changeY = event.clientY - dotsOldY;
+    dotsCamera.position.x += changeX / 10;
+    dotsCamera.position.y -= changeY / 10;
+    dotsOldX = event.clientX;
+    dotsOldY = event.clientY;
 }
 
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.autoClear = false;
 
 const canvas = renderer.domElement;
 canvas.style.pointerEvents = "auto";
-document.getElementById("container3D").appendChild(canvas);
+document.getElementById("bg3D").appendChild(canvas);
+canvas.addEventListener('mousemove', onDotsMouseMove);
 
 camera.position.z = 300;
 
@@ -390,11 +416,19 @@ function computeFov(aspect) {
 
 let lastKnownWidth = window.innerWidth;
 
+// Below this width there's no side margin next to the About/Projects text
+// for the props to park in, so they recede fully like the letters instead.
+const MOBILE_BREAKPOINT = 768;
+let isMobileLayout = window.innerWidth < MOBILE_BREAKPOINT;
+
 function updateCameraAspect() {
     const aspect = window.innerWidth / window.innerHeight;
     camera.aspect = aspect;
     camera.fov = computeFov(aspect);
     camera.updateProjectionMatrix();
+
+    dotsCamera.aspect = aspect;
+    dotsCamera.updateProjectionMatrix();
 }
 
 function updateRendererSize() {
@@ -410,12 +444,24 @@ function onWindowResize() {
 
     updateCameraAspect();
     updateRendererSize();
-    renderer.render(scene, camera);
+    HERO_SCROLL_RANGE = window.innerHeight;
+    isMobileLayout = window.innerWidth < MOBILE_BREAKPOINT;
+    renderScene();
 }
 
 function adjustForMobile() {
     updateCameraAspect();
     updateRendererSize();
+}
+
+// Draws the starfield first, then the hero on top with only the depth
+// buffer cleared in between - that's what lets the hero's props occlude
+// each other correctly while still compositing over the dots behind them.
+function renderScene() {
+    renderer.clear();
+    renderer.render(dotsScene, dotsCamera);
+    renderer.clearDepth();
+    renderer.render(scene, camera);
 }
 
 adjustForMobile();
@@ -471,27 +517,92 @@ function resetHoverState() {
     }
 }
 
+// The hero (letters + props) transitions over the first viewport-height of
+// scroll: the letters scale down and drift off, while on desktop the props
+// ease into a parked spot beside the page content and stay there - still
+// floating - for the rest of the scroll instead of disappearing. On mobile
+// there's no side margin for that, so the props recede fully like the
+// letters.
+let HERO_SCROLL_RANGE = window.innerHeight;
+
+const HERO_EXIT_X = 1.6;
+const HERO_DEPTH_Z = -5; // approximate depth of the props, for sizing the parked frustum
+const PARK_FRACTION = 0.72; // how far toward the screen edge the parked props sit
+const PARK_SCALE = 0.58;
+
+// Half-width (world units) of the camera frustum at the props' depth - the
+// edge the parked props ease toward. Recomputed each call since it depends
+// on the live FOV/aspect.
+function frustumHalfWidthAtDepth(depthZ) {
+    const distance = camera.position.z - depthZ;
+    const halfHeight = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * distance;
+    return halfHeight * camera.aspect;
+}
+
+// Layered sine waves at incommensurate frequencies read as loose, organic
+// wandering without the jitter true per-frame randomness would cause. Each
+// side gets its own seed so the two groups don't drift in lockstep.
+function wanderOffset(time, seed) {
+    return {
+        x: Math.sin(time * 0.15 + seed) * 0.22 + Math.sin(time * 0.06 + seed * 1.7) * 0.15,
+        y: Math.cos(time * 0.11 + seed * 0.6) * 0.18 + Math.sin(time * 0.19 + seed * 2.3) * 0.1
+    };
+}
+
+function updateHero(time) {
+    const heroProgress = Math.min(window.scrollY / HERO_SCROLL_RANGE, 1);
+    const heroScale = THREE.MathUtils.clamp(1 - heroProgress * 1.15, 0.001, 1);
+
+    // Letters always just scale down and drift away with the hero.
+    lettersRoot.scale.setScalar(heroScale);
+    lettersRoot.position.y = heroProgress * 0.6;
+
+    if (isMobileLayout) {
+        leftExitRoot.scale.setScalar(heroScale);
+        leftExitRoot.position.set(-heroProgress * HERO_EXIT_X, 0, 0);
+
+        rightExitRoot.scale.setScalar(heroScale);
+        rightExitRoot.position.set(heroProgress * HERO_EXIT_X, 0, 0);
+    } else {
+        const parkX = frustumHalfWidthAtDepth(HERO_DEPTH_Z) * PARK_FRACTION;
+        const parkScale = THREE.MathUtils.lerp(1, PARK_SCALE, heroProgress);
+
+        // A loose, multi-frequency wander on top of each prop's own
+        // float/spin animation, so the parked cluster reads as adrift
+        // rather than pinned to a fixed spot - it's big enough to carry
+        // them in behind the text sometimes, not just hover at the edge.
+        const leftWander = wanderOffset(time, 1.3);
+        const rightWander = wanderOffset(time, 4.1);
+
+        leftExitRoot.scale.setScalar(parkScale);
+        leftExitRoot.position.set(
+            -heroProgress * parkX + leftWander.x * heroProgress,
+            leftWander.y * heroProgress,
+            0
+        );
+
+        rightExitRoot.scale.setScalar(parkScale);
+        rightExitRoot.position.set(
+            heroProgress * parkX + rightWander.x * heroProgress,
+            rightWander.y * heroProgress,
+            0
+        );
+    }
+
+    return heroProgress;
+}
+
 function animate() {
     requestAnimationFrame(animate);
 
     const time = Date.now() * 0.001;
+    const heroProgress = updateHero(time);
 
     accentLight.position.set(
         Math.sin(time * 0.12) * 3.5,
         2 + Math.cos(time * 0.16) * 1.2,
         3 + Math.cos(time * 0.12) * 3.5
     );
-
-    if (particles) {
-        const posAttr = particles.geometry.attributes.position;
-        for (let i = 0; i < posAttr.count; i++) {
-            let y = posAttr.getY(i) + particleSpeeds[i];
-            if (y > 1.3) y = -1.3;
-            posAttr.setY(i, y);
-        }
-        posAttr.needsUpdate = true;
-        particles.rotation.y += 0.0003;
-    }
 
     letters.forEach((letter, index) => {
         const waveFrequency = 1.5;
@@ -504,98 +615,94 @@ function animate() {
     });
 
     if (cubeGroup) {
-        const cubeFloatAmplitude = 0.3;
-        const cubeFloatFrequency = 0.5;
-    
-        cube.rotation.x += 0.002;
-        cube.rotation.y += 0.002;
-        cube.rotation.z += 0.002;
+        if (cubeGroup.userData.baseX === undefined) {
+            cubeGroup.userData.baseX = cubeGroup.position.x;
+            cubeGroup.userData.baseY = cubeGroup.position.y;
+        }
+        cubeGroup.position.x = cubeGroup.userData.baseX + Math.sin(time * 0.27) * 0.16;
+        cubeGroup.position.y = cubeGroup.userData.baseY + Math.sin(time * 0.35 + 1.1) * 0.16;
+
+        cube.rotation.x += 0.0035;
+        cube.rotation.y += 0.0048;
+        cube.rotation.z += 0.0021;
     }
 
     if (ballGroup) {
         ballGroup.children.forEach((individualBallGroup, index) => {
             const ball = individualBallGroup.children[0];
-            const ballFloatAmplitude = 0.05;
-            const ballFloatFrequency = 0.5;
+            const ballFloatAmplitude = 0.14;
+            const ballFloatFrequency = 0.45;
             const ballFloatPhase = index * (Math.PI * 2 / 3);
 
-            const verticalOffset = Math.sin(time * ballFloatFrequency + ballFloatPhase) * ballFloatAmplitude;
-            
-            const initialY = individualBallGroup.userData.initialY || individualBallGroup.position.y;
-            
-            if (!individualBallGroup.userData.initialY) {
-                individualBallGroup.userData.initialY = initialY;
+            if (individualBallGroup.userData.baseX === undefined) {
+                individualBallGroup.userData.baseX = individualBallGroup.position.x;
+                individualBallGroup.userData.baseY = individualBallGroup.position.y;
             }
-            individualBallGroup.position.y = initialY + verticalOffset;
+
+            const verticalOffset = Math.sin(time * ballFloatFrequency + ballFloatPhase) * ballFloatAmplitude;
+            const horizontalOffset = Math.cos(time * 0.3 + ballFloatPhase) * 0.08;
+
+            individualBallGroup.position.y = individualBallGroup.userData.baseY + verticalOffset;
+            individualBallGroup.position.x = individualBallGroup.userData.baseX + horizontalOffset;
             ball.rotation.x = Math.sin(time * 0.5 + index) * 0.50;
             ball.rotation.y = Math.cos(time * 0.5 + index) * 0.50;
             ball.rotation.z = Math.sin(time * 0.7 + index) * 0.50;
         });
     }
-    
-    if (laptop && laptopScreen) {
-        const laptopFloatAmplitude = 0.01; 
-        const laptopFloatFrequency = 0.01;
-        
-        const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
-        laptop.position.y = -0.4 + verticalOffset;
-        laptopScreen.position.y = -0.4 + verticalOffset;
-        
-        const laptopRotationAmplitude = 0.05;
-        const laptopRotationFrequency = 0.3;
-        
-        const rotationOffset = Math.sin(time * laptopRotationFrequency) * laptopRotationAmplitude;
-        laptop.rotation.y = -0.2 + rotationOffset;
-        laptopScreen.rotation.y = -0.2 + rotationOffset;
-        
-        const tiltAmplitude = 0.02;
-        const tiltFrequency = 0.7;
-        
-        const tiltOffset = Math.sin(time * tiltFrequency) * tiltAmplitude;
-        laptop.rotation.x = 0.4 + tiltOffset;
-        laptopScreen.rotation.x = 0.4 + tiltOffset;
-    }
 
     if (laptopGroup) {
-        const laptopFloatAmplitude = 0.05; 
-        const laptopFloatFrequency = 0.5;
-        
+        const laptopFloatAmplitude = 0.16;
+        const laptopFloatFrequency = 0.4;
+
         const verticalOffset = Math.sin(time * laptopFloatFrequency) * laptopFloatAmplitude;
+        const horizontalOffset = Math.cos(time * 0.22 + 0.8) * 0.12;
         laptopGroup.position.y = -0.3 + verticalOffset;
-        
-        const laptopRotationAmplitude = 0.1;
+        laptopGroup.position.x = 0.5 + horizontalOffset;
+
+        const laptopRotationAmplitude = 0.18;
         const laptopRotationFrequency = 0.3;
-        
+
         const rotationOffset = Math.sin(time * laptopRotationFrequency) * laptopRotationAmplitude;
         laptopGroup.rotation.y = -0.2 + rotationOffset;
-        
-        const tiltAmplitude = 0.05;
-        const tiltFrequency = 0.7;
-        
+
+        const tiltAmplitude = 0.09;
+        const tiltFrequency = 0.55;
+
         const tiltOffset = Math.sin(time * tiltFrequency) * tiltAmplitude;
         laptopGroup.rotation.x = 0.4 + tiltOffset;
+        laptopGroup.rotation.z = Math.sin(time * 0.33 + 2) * 0.05;
     }
-
-    checkIntersection();
-    renderer.render(scene, camera);
 
     if (racketGroup) {
-        const racketFloatAmplitude = 0.1;
-        const racketFloatFrequency = 0.5;
-        const racketRotationAmplitude = 0.3;
-        const racketRotationFrequency = 0.9;
+        const racketFloatAmplitude = 0.22;
+        const racketFloatFrequency = 0.42;
+        const racketRotationAmplitude = 0.45;
+        const racketRotationFrequency = 0.7;
 
-        // Vertical floating motion
+        // Vertical + horizontal floating motion
         const verticalOffset = Math.sin(time * racketFloatFrequency) * racketFloatAmplitude;
+        const horizontalOffset = Math.cos(time * 0.24 + 1.6) * 0.14;
         racketGroup.position.y = -0.65 + verticalOffset;
+        racketGroup.position.x = -0.23 + horizontalOffset;
 
-        // Side-to-side rotation
+        // Tumbling rotation across multiple axes
         const rotationOffset = Math.sin(time * racketRotationFrequency) * racketRotationAmplitude;
         racketGroup.rotation.y = rotationOffset;
+        racketGroup.rotation.x = 0.6 + Math.sin(time * 0.3 + 0.5) * 0.2;
+        racketGroup.rotation.z = 0.3 + Math.cos(time * 0.26) * 0.25;
     }
 
-    checkIntersection();
-    renderer.render(scene, camera);
+    // On mobile the props fully recede past ~85%, so there's nothing left to
+    // hover/click - skip the raycast and clear any lingering hover state. On
+    // desktop the laptop stays parked and clickable for the rest of the page.
+    if (!isMobileLayout || heroProgress < 0.85) {
+        checkIntersection();
+    } else if (isHovering) {
+        resetHoverState();
+    }
+
+    updateDots();
+    renderScene();
 }
 
 animate();
@@ -603,6 +710,5 @@ loadLaptopAndScreen();
 loadCube();
 loadBall();
 loadRacket();
-createParticles();
 
 window.addEventListener('resize', onWindowResize);

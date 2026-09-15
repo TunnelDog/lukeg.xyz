@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
   let prevScrollPos = window.scrollY;
   let hideTimeout;
 
+  const scrollCue = document.querySelector('.scroll-cue');
+  const scrollCueThreshold = 40; // px scrolled before the cue fades out
+
   window.addEventListener('scroll', function () {
     const currentScrollPos = window.scrollY;
     const scrollDifference = prevScrollPos - currentScrollPos;
@@ -21,6 +24,10 @@ document.addEventListener('DOMContentLoaded', function () {
           navbar.classList.add('hidden');
         }, 5); // delay
       }
+    }
+
+    if (scrollCue) {
+      scrollCue.classList.toggle('scroll-cue-hidden', currentScrollPos > scrollCueThreshold);
     }
 
     prevScrollPos = currentScrollPos;

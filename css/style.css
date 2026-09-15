@@ -90,19 +90,35 @@ body.hovering {
   width: 100%;
 }
 
+/* Single full-page 3D canvas, fixed behind all scrollable content so the
+   starfield and hero props form one continuous scene instead of a
+   per-section background. */
+#bg3D {
+  position: fixed;
+  inset: 0;
+  /* No z-index here on purpose: a negative z-index makes Chrome route
+     "empty" pointer hits to <body>'s own box instead of falling through to
+     this descendant, which breaks clicking the laptop. Being the first
+     child of <body> with z-index left auto already paints it behind every
+     later sibling (header, sections) without that trap. */
+}
+
+#bg3D canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block;
+}
+
 .home-section {
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
-}
-
-#container3D canvas {
-  width: 100vw !important;
-  height: 100vh !important;
-  position: absolute;
-  top: 0;
-  left: 0;
+  /* This box has no background of its own, but an element still intercepts
+     clicks by default even when invisible - without this, it sits above
+     the fixed z-index:-1 canvas in stacking order and swallows every click
+     in the hero before it reaches the laptop/props. Children that need to
+     be clickable (the scroll cue) opt back in explicitly. */
+  pointer-events: none;
 }
 
 .scroll-cue {
@@ -119,13 +135,19 @@ body.hovering {
   border: 2px solid rgba(60, 79, 118, 0.35);
   text-decoration: none;
   z-index: 10;
+  pointer-events: auto;
   animation: scrollCueBounce 2s ease-in-out infinite;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
 }
 
 .scroll-cue:hover {
   border-color: #3C4F76;
   background-color: rgba(60, 79, 118, 0.08);
+}
+
+.scroll-cue-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .scroll-cue-arrow {
@@ -161,17 +183,12 @@ body.hovering {
 /* --- About section --- */
 .about {
   position: relative;
-  overflow: hidden;
   width: 100%;
   padding: 130px 20px 90px;
   scroll-margin-top: 90px;
-}
-
-#container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
+  /* Full-width and background-less, so without this it blocks clicks to
+     the parked props behind it - see the matching note on .home-section. */
+  pointer-events: none;
 }
 
 .main {
@@ -182,6 +199,11 @@ body.hovering {
   align-items: center;
   justify-content: center;
 }
+
+.about-text {
+  pointer-events: auto;
+}
+
 .about-text h1 {
   color: #3C4F76;
   font-size: 28px;
@@ -222,6 +244,14 @@ button:hover {
   padding: 70px 20px 60px;
   text-align: center;
   scroll-margin-top: 90px;
+  /* Background-less padding/gaps here would otherwise block clicks to the
+     parked props behind them - see the matching note on .home-section. */
+  pointer-events: none;
+}
+
+#projects h1,
+.project {
+  pointer-events: auto;
 }
 
 #projects h1 {
