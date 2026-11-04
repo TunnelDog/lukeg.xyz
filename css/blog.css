@@ -1,26 +1,3 @@
-body {
-  background-color: var(--bg);
-  min-height: 100vh;
-}
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 20px clamp(12px, 4vw, 20px);
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  z-index: 100;
-  transition: transform 0.3s ease-in-out;
-  background-color: var(--glass);
-}
-
-.header.hidden {
-  transform: translateY(-100%);
-}
-
 .blog-container {
   position: relative;
   z-index: 1;
@@ -136,7 +113,7 @@ body {
 
 .read-more {
   color: var(--ink);
-  text-decoration: underline 2px var(--rose);
+  text-decoration: underline 2px var(--accent);
   text-underline-offset: 3px;
   font-weight: 600;
   font-size: 0.9rem;
@@ -144,7 +121,7 @@ body {
 }
 
 .blog-preview-link:hover .read-more {
-  text-decoration-color: var(--wisteria);
+  text-decoration-color: var(--ink);
 }
 
 /* Individual Blog Post Styles */
@@ -228,7 +205,7 @@ body {
 
 .blog-content blockquote {
   background: rgba(131, 144, 250, 0.14);
-  border-left: 4px solid var(--wisteria);
+  border-left: 4px solid var(--accent);
   padding: 1.5rem;
   margin: 2rem 0;
   font-style: italic;
@@ -260,7 +237,7 @@ body {
 
 .back-to-blog {
   color: var(--ink);
-  text-decoration: underline 2px var(--rose);
+  text-decoration: underline 2px var(--accent);
   text-underline-offset: 3px;
   font-weight: 600;
   font-size: 1rem;
@@ -268,7 +245,7 @@ body {
 }
 
 .back-to-blog:hover {
-  text-decoration-color: var(--wisteria);
+  text-decoration-color: var(--ink);
 }
 
 /* Tablet and smaller desktop screens */

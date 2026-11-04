@@ -95,7 +95,7 @@ body.hovering {
 }
 
 .navbar a.active {
-  text-decoration: underline 2px var(--rose);
+  text-decoration: underline 2px var(--accent);
   text-underline-offset: 5px;
 }
 
@@ -308,16 +308,14 @@ body.hovering {
   font-weight: 500;
   color: var(--ink);
   text-decoration: none;
-  border: 1px solid var(--line);
+  border: 1px solid var(--accent);
   border-radius: 999px;
   background: var(--tint);
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .link-row a:hover {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--bg);
+  background: var(--tint-strong);
 }
 
 /* --- Apps --- */
@@ -398,13 +396,13 @@ body.hovering {
   font-weight: 500;
   color: var(--ink);
   text-decoration: none;
-  border-bottom: 2px solid var(--rose);
+  border-bottom: 2px solid var(--accent);
   padding-bottom: 2px;
   transition: border-color 0.2s ease;
 }
 
 .text-link:hover {
-  border-color: var(--wisteria);
+  border-color: var(--ink);
 }
 
 .tag {
@@ -414,7 +412,7 @@ body.hovering {
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--ink);
-  border: 1px solid var(--wisteria);
+  border: 1px solid var(--accent);
   border-radius: 999px;
   vertical-align: middle;
 }
@@ -517,12 +515,12 @@ body.hovering {
 
 .site-footer a:hover {
   text-decoration: underline;
-  text-decoration-color: var(--rose);
+  text-decoration-color: var(--accent);
   text-underline-offset: 3px;
 }
 
 :focus-visible {
-  outline: 2px solid var(--rose);
+  outline: 2px solid var(--ink); /* Blue is too faint on white to mark keyboard focus */
   outline-offset: 3px;
 }
 

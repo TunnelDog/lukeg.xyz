@@ -23,7 +23,7 @@
   border: none;
   width: 120px;
   height: 5px;
-  background-color: var(--wisteria);
+  background-color: var(--accent);
   border-radius: 10px;
   margin-bottom: 20px;
 }
@@ -44,7 +44,7 @@
   border-radius: 20px;
 }
 .contact-inputs:focus{
-  border: 2px solid var(--rose);
+  border: 2px solid var(--accent);
 }
 .contact-inputs::placeholder{
   color: var(--muted);
@@ -63,7 +63,7 @@
   transition: box-shadow 0.2s ease;
 }
 .contact-left button:hover {
-  box-shadow: 0 0 0 3px var(--rose);
+  box-shadow: 0 0 0 3px var(--accent);
 }
 
 @media screen and (max-width: 600px) {

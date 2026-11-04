@@ -15,7 +15,9 @@
      All small text uses --ink or --muted, which pass 4.5:1. */
   --bg: #fafaf9;
   --surface: #ffffff; /* large panels, such as blog cards and poems */
-  --tint: var(--veil); /* small accents, such as form fields and link pills */
+  --accent: var(--wisteria); /* underlines, rules and borders */
+  --tint: rgba(131, 144, 250, 0.14); /* form fields and link pills */
+  --tint-strong: rgba(131, 144, 250, 0.3); /* their hover state */
   --ink: var(--charcoal);
   --muted: #6a6769; /* lighter tint of Charcoal */
   --line: rgba(89, 87, 88, 0.18);
