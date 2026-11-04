@@ -10,15 +10,16 @@
   --rose: #E54F6D;
 
   /* Roles.
-     Rose (3.3:1) and Wisteria (2.6:1) are too light on Blush for small text,
-     so they're only for large display type, shapes, rules and focus rings.
-     All small text uses --ink or --muted, which pass 4.5:1 on Blush and Veil. */
-  --bg: var(--blush);
-  --surface: var(--veil);
+     On the white background, Rose (3.5:1) and Wisteria (2.7:1) are too light for
+     small text, so they're for display type, shapes, rules and focus rings.
+     All small text uses --ink or --muted, which pass 4.5:1. */
+  --bg: #fafaf9;
+  --surface: #ffffff; /* large panels, such as blog cards and poems */
+  --tint: var(--veil); /* small accents, such as form fields and link pills */
   --ink: var(--charcoal);
   --muted: #6a6769; /* lighter tint of Charcoal */
   --line: rgba(89, 87, 88, 0.18);
-  --glass: rgba(255, 238, 242, 0.82);
+  --glass: rgba(250, 250, 249, 0.78);
 
   /* Type */
   --display: "Anton", Impact, "Arial Narrow", sans-serif;

@@ -1,80 +1,5 @@
-@import url('../css/tokens.css');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--sans);
-}
-
-body {
-    min-height: 100vh;
-    background-color: var(--bg);
-    color: var(--ink);
-}
-  .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px clamp(12px, 4vw, 20px);
-    display: flex;
-    justify-content: right;
-    align-items: center;
-    z-index: 100;
-  }
-
-  /* Always a single, non-wrapping row - font size and gap scale fluidly
-     with viewport width instead of jumping at one fixed breakpoint, so
-     the links never spill onto a second row on phones. */
-  .navbar {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: clamp(8px, 2.5vw, 25px);
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .navbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .navbar a {
-    position: relative;
-    flex: 0 0 auto;
-    font-size: clamp(12px, 3.8vw, 18px);
-    color: var(--ink);
-    font-weight: 500;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .navbar a::before {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 0%;
-    height: 2px;
-    background: var(--rose);
-    transition: .3s;
-  }
-
-  .navbar a:hover::before {
-    width: 100%;
-  }
-
-  .navbar a.active {
-    font-weight: 700;
-  }
-
-  .navbar a.active::before {
-    width: 100%;
-  }
-  
-  .contact-container {
+/* Colors, fonts, nav and page basics come from css/style.css. */
+.contact-container {
     height: 100vh;
     display: flex;
     align-items: center;
@@ -109,10 +34,11 @@ body {
   outline: none;
   padding-left: 25px;
   color: var(--ink);
-  background: var(--surface);
+  background: var(--tint);
   border-radius: 50px;
 }
 .contact-left textarea {
+  resize: vertical;
   height: 140px;
   padding-top: 15px;
   border-radius: 20px;

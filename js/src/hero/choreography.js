@@ -1,4 +1,6 @@
 import gsap from 'gsap';
+import { Color } from 'three';
+import { PALETTE } from './palette.js';
 
 // Slow devices drop frames rather than stretch the intro out, so the name
 // still reads on schedule.
@@ -28,9 +30,22 @@ export function playIntro(letters, camera, onDone) {
     return timeline;
 }
 
+// Colors a clicked letter can fade to. Blush and Veil are left out because
+// they'd make the name unreadable on the white background.
+const LETTER_COLORS = ['wisteria', 'rose', 'charcoal'];
+
+function nextColor(current) {
+    const options = LETTER_COLORS.filter(name => name !== current);
+    return options[Math.floor(Math.random() * options.length)];
+}
+
 export function playMelt(letter) {
     if (letter.melting) return;
     letter.melting = true;
+
+    letter.colorName = nextColor(letter.colorName);
+    const { r, g, b } = new Color(PALETTE[letter.colorName]);
+
     gsap.timeline({ onComplete: () => { letter.melting = false; } })
         .to(letter.morph, { value: 1, duration: 0.42, ease: 'power2.inOut' }, 0)
         .to(letter.intro, { y: 0.14, rotY: Math.PI, duration: 0.42, ease: 'power2.out' }, 0)
@@ -38,7 +53,9 @@ export function playMelt(letter) {
         .to(letter.intro, { y: 0, duration: 0.6, ease: 'bounce.out' }, 0.5)
         .to(letter.intro, { rotY: Math.PI * 2, duration: 0.8, ease: 'power3.out' }, 0.5)
         .set(letter.intro, { rotY: 0 })
-        .fromTo(letter.kick, { value: 0.7 }, { value: 0, duration: 0.9, ease: 'elastic.out(1, 0.4)' }, 0.5);
+        .fromTo(letter.kick, { value: 0.7 }, { value: 0, duration: 0.9, ease: 'elastic.out(1, 0.4)' }, 0.5)
+        // Once it has re-formed, the letter fades to its new color.
+        .to(letter.material.color, { r, g, b, duration: 0.9, ease: 'sine.inOut' }, 0.95);
 }
 
 export const ticker = gsap.ticker;

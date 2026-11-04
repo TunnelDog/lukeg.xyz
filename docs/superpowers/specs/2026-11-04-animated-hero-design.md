@@ -19,6 +19,15 @@ Added after the spec was approved, at Luke's request:
 - **Bundle instead of import map.** This replaces `js/vendor/`, `js/hero/` and the import map described under Architecture. Sources live in `js/src/`, development tools in `tools/` (which has its own `package.json`, so hosting still treats the repo root as a static site), and the committed output in `js/dist/`. Visitors still run no build step.
 - **Convex morph shapes.** Shapes are rounded convex forms such as discs, pills and squircles. A letter's triangulation stays valid when its outline is mapped onto a convex curve, which is what keeps morphing clean. Arches are dropped.
 
+## Revision after first review (2026-11-04)
+
+Replaces any conflicting detail below:
+
+- **Background:** white (`#fafaf9`) on every page, with no hero gradient. Veil is kept for small accents such as form fields.
+- **Letters:** every letter starts Wisteria Blue. Clicking one plays the melt, then fades it to another color: Wisteria, Rose or Charcoal. Blush and Veil are left out because the name would be unreadable on white.
+- **Floating objects:** ten in total, five of them positioned directly behind the letters.
+- **Contact page:** uses the home page's nav and `css/style.css`.
+
 ## Success criteria
 
 - The name is readable within about 1.5 seconds of the intro starting.

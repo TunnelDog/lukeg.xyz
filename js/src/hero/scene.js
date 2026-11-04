@@ -32,7 +32,6 @@ const LETTER_SHAPES = {
     G: { a: 0.27, b: 0.4, n: 2 }
 };
 
-const LETTER_COLORS = { L: PALETTE.rose, u: PALETTE.rose, k: PALETTE.rose, e: PALETTE.rose, G: PALETTE.wisteria };
 
 // Where each letter's shape begins before it flies into the word.
 const INTRO_STARTS = [
@@ -43,15 +42,22 @@ const INTRO_STARTS = [
     { x: 0.95, y: 0.55, z: -0.5, rotX: 0.6, rotY: 1.8, rotZ: -0.5 }
 ];
 
-// Quiet shapes that slowly morph, tucked into the gaps in the word: above the
-// short letters and in the space before the G. x is a fraction of the word's
-// width and y of its height, both from the centre.
+// Quiet shapes that slowly morph, floating behind the word. x is a fraction
+// of the word's width and y of its height, both from the centre. The first
+// group sits in the gaps above and between letters, the second peeks out from
+// directly behind them.
 const DRIFTERS = [
-    { x: -0.3, y: 0.46, z: -0.45, size: 0.088, color: PALETTE.wisteria, from: [1, 1, 2], to: [0.72, 1.2, 3.4] },
+    { x: -0.3, y: 0.46, z: -0.45, size: 0.088, color: PALETTE.rose, from: [1, 1, 2], to: [0.72, 1.2, 3.4] },
     { x: 0.13, y: 0.47, z: -0.5, size: 0.09, color: PALETTE.wisteria, from: [1.25, 0.8, 3], to: [1, 1, 2] },
     { x: 0.27, y: 0.46, z: -0.6, size: 0.075, color: PALETTE.veil, from: [1, 1, 3], to: [1.3, 0.75, 2] },
     { x: 0.27, y: 0.25, z: -0.15, size: 0.06, color: PALETTE.rose, from: [1, 1, 1.5], to: [1.15, 0.8, 3] },
-    { x: 0.265, y: -0.36, z: -0.55, size: 0.055, color: PALETTE.wisteria, from: [1.3, 0.75, 2.4], to: [1, 1, 3.6] }
+    { x: 0.265, y: -0.36, z: -0.55, size: 0.055, color: PALETTE.wisteria, from: [1.3, 0.75, 2.4], to: [1, 1, 3.6] },
+
+    { x: -0.355, y: 0.12, z: -0.7, size: 0.14, color: PALETTE.rose, from: [1, 1, 2], to: [0.8, 1.2, 3] },
+    { x: -0.1, y: 0.2, z: -0.85, size: 0.15, color: PALETTE.veil, from: [1.2, 0.85, 3], to: [1, 1, 2] },
+    { x: 0.02, y: 0.34, z: -0.65, size: 0.07, color: PALETTE.charcoal, from: [1, 1, 2.6], to: [1.2, 0.8, 1.6] },
+    { x: 0.21, y: -0.18, z: -0.9, size: 0.13, color: PALETTE.blush, from: [0.85, 1.2, 2.2], to: [1.1, 0.9, 3.4] },
+    { x: 0.46, y: 0.02, z: -0.75, size: 0.11, color: PALETTE.rose, from: [1, 1, 3], to: [1.2, 0.8, 2] }
 ];
 
 const toPoints = flat => {
@@ -94,7 +100,7 @@ function buildLetters(scene) {
             depth: DEPTH,
             bevel: BEVEL
         });
-        const material = createMorphMaterial(LETTER_COLORS[source.char]);
+        const material = createMorphMaterial(PALETTE.wisteria);
         const mesh = new THREE.Mesh(geometry, material);
 
         // Rotations and scale happen around the letter's centre.
@@ -122,6 +128,8 @@ function buildLetters(scene) {
             pivot,
             mesh,
             shadow,
+            material,
+            colorName: 'wisteria',
             morph: material.userData.uMorph,
             intro: { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 },
             kick: { value: 0 },
@@ -135,9 +143,8 @@ function buildLetters(scene) {
     });
 }
 
-function buildDrifters(scene, isSmall) {
-    const list = isSmall ? DRIFTERS.slice(0, 3) : DRIFTERS;
-    return list.map((spec, index) => {
+function buildDrifters(scene) {
+    return DRIFTERS.map((spec, index) => {
         const [fa, fb, fn] = spec.from;
         const [ta, tb, tn] = spec.to;
         const outer = superellipse(fa * spec.size, fb * spec.size, fn, 96);
@@ -192,7 +199,7 @@ export function initHero() {
     const layout = { distance: 5, tall: 1, width: 1, height: 1, shift: 0, wordWidth: 1 };
 
     const letters = buildLetters(scene);
-    const drifters = buildDrifters(scene, window.innerWidth < 640);
+    const drifters = buildDrifters(scene);
 
     const totalAdvance = letters.reduce((sum, l) => sum + l.advance + l.spaceBefore, 0);
     const lettersAdvance = letters.reduce((sum, l) => sum + l.advance, 0);
