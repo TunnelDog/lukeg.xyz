@@ -29,9 +29,22 @@ export function createInput(hero, { onSelect }) {
 
     document.documentElement.addEventListener('pointerleave', () => { input.hasPointer = false; });
 
+    // Taps are read from pointer events because iOS Safari doesn't fire "click"
+    // on plain elements like this section. A swipe to scroll cancels the press.
     // Links inside the hero (the scroll cue) keep their normal behaviour.
-    hero.addEventListener('click', event => {
-        if (event.target.closest('a')) return;
+    const TAP_SLOP = 10; // CSS pixels a tap may wander
+    let press = null;
+
+    hero.addEventListener('pointerdown', event => {
+        if (event.button !== 0 || event.target.closest('a')) return;
+        press = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    });
+    hero.addEventListener('pointercancel', () => { press = null; });
+    hero.addEventListener('pointerup', event => {
+        if (!press || press.id !== event.pointerId) return;
+        const moved = Math.hypot(event.clientX - press.x, event.clientY - press.y);
+        press = null;
+        if (moved > TAP_SLOP) return;
         place(event);
         onSelect(input.x, input.y);
     });

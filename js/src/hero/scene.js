@@ -19,7 +19,7 @@ const MAX_TALL_PHONE = 2.7; // phones have far more height to fill
 
 const STRETCH_REACH = 0.42; // ems of pointer influence
 const STRETCH_AMOUNT = 0.8;
-const MAX_DPR_COARSE = 1.5;
+const MAX_DPR_COARSE = 2;
 const MAX_DPR_FINE = 2;
 const SLOW_FRAME_MS = 26;
 
