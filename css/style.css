@@ -1,13 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Yellowtail&display=swap');
+@import url('tokens.css');
 
 :root {
-  --bg: #fafaf9;
-  --ink: #141413;
-  --muted: #6b6a66;
-  --faint: #a3a29d;
-  --line: rgba(20, 20, 19, 0.12);
-  --serif: "Instrument Serif", Georgia, serif;
-  --sans: "Inter", system-ui, -apple-system, sans-serif;
   --gutter: clamp(16px, 5vw, 48px);
   --content: 960px;
 }
@@ -47,7 +40,7 @@ body.hovering {
   gap: 24px;
   z-index: 100;
   transition: transform 0.3s ease-in-out;
-  background-color: rgba(250, 250, 249, 0.78);
+  background-color: var(--glass);
   backdrop-filter: saturate(1.4) blur(14px);
   -webkit-backdrop-filter: saturate(1.4) blur(14px);
   border-bottom: 1px solid var(--line);
@@ -101,6 +94,11 @@ body.hovering {
   color: var(--ink);
 }
 
+.navbar a.active {
+  text-decoration: underline 2px var(--rose);
+  text-underline-offset: 5px;
+}
+
 @media (max-width: 480px) {
   .brand { display: none; }
 }
@@ -116,36 +114,41 @@ body.hovering {
   justify-content: center;
   /* Nudge the name above true centre so the caption below has room. */
   padding-bottom: 14vh;
+  overflow: hidden;
+  /* Ends on the page background, so there's no seam at the About section. */
+  background: linear-gradient(180deg, var(--veil) 0%, var(--blush) 82%);
 }
 
 /* --- Hero name ---
-   js/main.js laces "Luke G" in as a ribbon on #ribbon-canvas and then adds
-   .has-ribbon to the hero. Until then (or if that fails) the plain <h1>
-   below shows instead; afterwards it stays in the page, visually hidden,
-   for screen readers and search engines. */
+   js/src/hero draws "Luke G" on #hero-canvas and then adds .has-hero-scene to
+   the hero. Until then (or if WebGL isn't available) the plain <h1> shows; after
+   that it stays in the page, visually hidden, for screen readers and search. */
 .hero-name {
-  font-family: "Yellowtail", cursive;
+  font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(92px, 26vw, 280px);
-  line-height: 1.15;
+  font-size: clamp(96px, 27vw, 340px);
+  line-height: 1.05;
   white-space: nowrap;
-  padding: 0.08em 0.28em 0.22em;
-  background: linear-gradient(105deg, #2233ff, #9b2cf0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--rose);
 }
 
-#ribbon-canvas {
+#hero-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   touch-action: pan-y; /* phones can still scroll by swiping across it */
+  /* Letters dissolve at the hero's edge instead of being cut off by it. */
+  -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 80%, transparent 100%);
 }
 
-.has-ribbon .hero-name {
+.hero-pending .hero-name {
+  visibility: hidden;
+}
+
+.has-hero-scene .hero-name {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -170,12 +173,10 @@ body.hovering {
 }
 
 .eyebrow {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .hero-line {
@@ -209,7 +210,7 @@ body.hovering {
 
 .scroll-cue:hover {
   border-color: var(--ink);
-  background-color: rgba(20, 20, 19, 0.04);
+  background-color: var(--surface);
 }
 
 .scroll-cue-hidden {
@@ -231,20 +232,20 @@ body.hovering {
 }
 
 /* Fade + rise into place the first time a section's content scrolls into view */
-.reveal {
+.reveal-ready .reveal {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.reveal.is-visible {
+.reveal-ready .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .scroll-cue { animation: none; }
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal-ready .reveal { opacity: 1; transform: none; transition: none; }
 }
 
 /* --- Sections --- */
@@ -265,10 +266,8 @@ body.hovering {
 }
 
 .section-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--muted);
   padding-top: 8px;
 }
@@ -313,7 +312,7 @@ body.hovering {
   text-decoration: none;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(250, 250, 249, 0.7);
+  background: var(--surface);
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -355,7 +354,7 @@ body.hovering {
   margin: 11%;
   display: block;
   border-radius: 22.37%;
-  box-shadow: 0 18px 30px -12px rgba(20, 20, 19, 0.35);
+  box-shadow: 0 18px 30px -12px rgba(89, 87, 88, 0.45);
 }
 
 .app-icon canvas {
@@ -401,13 +400,13 @@ body.hovering {
   font-weight: 500;
   color: var(--ink);
   text-decoration: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 2px solid var(--rose);
   padding-bottom: 2px;
   transition: border-color 0.2s ease;
 }
 
 .text-link:hover {
-  border-color: var(--ink);
+  border-color: var(--wisteria);
 }
 
 .tag {
@@ -416,8 +415,8 @@ body.hovering {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--muted);
-  border: 1px solid var(--line);
+  color: var(--ink);
+  border: 1px solid var(--wisteria);
   border-radius: 999px;
   vertical-align: middle;
 }
@@ -449,7 +448,7 @@ body.hovering {
 
 .project-index {
   font-size: 13px;
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -480,7 +479,7 @@ body.hovering {
 
 .project-date {
   font-size: 13px;
-  color: var(--faint);
+  color: var(--muted);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   transition: color 0.2s ease;
@@ -520,6 +519,13 @@ body.hovering {
 
 .site-footer a:hover {
   text-decoration: underline;
+  text-decoration-color: var(--rose);
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: 3px;
 }
 
 /* Shared by the non-homepage pages that still use the pill button style. */
@@ -527,7 +533,7 @@ button {
   padding: 10px 18px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--bg);
+  color: var(--blush);
   border: none;
   border-radius: 999px;
   background-color: var(--ink);

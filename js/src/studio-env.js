@@ -1,10 +1,9 @@
-import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
+import * as THREE from 'three';
 
 // A tiny "photo studio" baked into an environment map: a neutral grey room
 // with a few bright softbox panels. Glossy materials pick up those panels
 // as clean highlights, which is most of what makes them read as real
-// objects instead of flat-shaded ones. (three's own RoomEnvironment isn't
-// published for r129 on the CDN, so this is a minimal stand-in.)
+// objects instead of flat-shaded ones.
 export function createStudioEnvironment(renderer) {
     const pmrem = new THREE.PMREMGenerator(renderer);
     const room = new THREE.Scene();

@@ -1,11 +1,12 @@
-import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
-import { createStudioEnvironment } from "./studio-env.js";
+import * as THREE from 'three';
+import { createStudioEnvironment } from './studio-env.js';
 
 // Turns each <a class="app-icon" data-texture=...> into a glossy 3D app
 // icon. The anchor stays the real link (so keyboard, middle-click and
 // cmd-click all behave normally); a plain click plays a short "press and
 // spin" first and then navigates. Each icon gets its own small renderer
-// that only runs while it's on screen.
+// that only runs while it's on screen. The canvas is only added once the
+// artwork has loaded, so if anything fails the plain <img> simply stays.
 
 const ICON_SIZE = 1;
 const CORNER_RADIUS = ICON_SIZE * 0.2237; // iOS app icon corner ratio
@@ -69,7 +70,6 @@ function setupIcon(anchor, geometry) {
         return null; // no WebGL - the fallback <img> stays visible
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputEncoding = THREE.sRGBEncoding;
     // No tone mapping: the icon art should keep its exact brand colours.
 
     const scene = new THREE.Scene();
@@ -78,10 +78,19 @@ function setupIcon(anchor, geometry) {
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
     camera.position.set(0, 0, 4.2);
 
-    const texture = new THREE.TextureLoader().load(anchor.dataset.texture, () => {
+    // Pages opened from the folder can't hand image files to WebGL, so they
+    // use the embedded copies from js/dist/app-textures.local.js instead.
+    const localTextures = window.__APP_TEXTURES || {};
+    const textureUrl = localTextures[anchor.dataset.texture] || anchor.dataset.texture;
+    const texture = new THREE.TextureLoader().load(textureUrl, () => {
+        anchor.appendChild(renderer.domElement);
+        state.ready = true;
+        resize();
         anchor.classList.add('is-3d');
+    }, undefined, () => {
+        renderer.dispose();
     });
-    texture.encoding = THREE.sRGBEncoding;
+    texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
     // The artwork is mostly self-lit (emissive) so it shows its true brand
@@ -96,7 +105,7 @@ function setupIcon(anchor, geometry) {
         clearcoatRoughness: 0.08
     });
     const edgeMaterial = new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color(anchor.dataset.edge || '#cccccc').convertSRGBToLinear(),
+        color: new THREE.Color(anchor.dataset.edge || '#cccccc'),
         roughness: 0.3,
         clearcoat: 1,
         clearcoatRoughness: 0.1
@@ -113,8 +122,8 @@ function setupIcon(anchor, geometry) {
     shadowCanvas.width = shadowCanvas.height = 128;
     const ctx = shadowCanvas.getContext('2d');
     const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-    gradient.addColorStop(0, 'rgba(20,20,19,0.38)');
-    gradient.addColorStop(1, 'rgba(20,20,19,0)');
+    gradient.addColorStop(0, 'rgba(89,87,88,0.38)');
+    gradient.addColorStop(1, 'rgba(89,87,88,0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 128, 128);
     const shadow = new THREE.Mesh(
@@ -123,8 +132,6 @@ function setupIcon(anchor, geometry) {
     );
     shadow.position.set(0, -0.78, -0.3);
     scene.add(shadow);
-
-    anchor.appendChild(renderer.domElement);
 
     const state = {
         anchor,
@@ -135,6 +142,7 @@ function setupIcon(anchor, geometry) {
         shadow,
         seed: Math.random() * 10,
         visible: false,
+        ready: false,
         hover: false,
         pointer: { x: 0, y: 0 },
         tilt: { x: 0, y: 0 },
@@ -143,6 +151,7 @@ function setupIcon(anchor, geometry) {
     };
 
     function resize() {
+        if (!state.ready) return;
         const canvas = renderer.domElement;
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
@@ -151,7 +160,6 @@ function setupIcon(anchor, geometry) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
     }
-    resize();
     new ResizeObserver(resize).observe(anchor);
 
     anchor.addEventListener('pointermove', event => {
@@ -169,7 +177,7 @@ function setupIcon(anchor, geometry) {
     anchor.addEventListener('click', event => {
         // Let modified clicks (new tab/window) go straight through.
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        if (prefersReducedMotion) return;
+        if (prefersReducedMotion || !state.ready) return;
         event.preventDefault();
         if (state.pressStart === null) state.pressStart = performance.now();
     });
@@ -214,8 +222,22 @@ function updateIcon(state, time) {
     state.renderer.render(state.scene, state.camera);
 }
 
-const anchors = document.querySelectorAll('.app-icon[data-texture]');
-if (anchors.length) {
+function loadLocalTextures() {
+    if (window.location.protocol !== 'file:') return Promise.resolve();
+    return new Promise(resolve => {
+        const script = document.createElement('script');
+        script.src = 'js/dist/app-textures.local.js';
+        script.onload = script.onerror = resolve;
+        document.head.appendChild(script);
+    });
+}
+
+export async function initAppIcons() {
+    const anchors = document.querySelectorAll('.app-icon[data-texture]');
+    if (!anchors.length) return;
+
+    await loadLocalTextures();
+
     const geometry = createIconGeometry();
     const icons = Array.from(anchors).map(anchor => setupIcon(anchor, geometry)).filter(Boolean);
 
@@ -234,7 +256,7 @@ if (anchors.length) {
         requestAnimationFrame(loop);
         const time = performance.now() * 0.001;
         icons.forEach(icon => {
-            if (icon.visible || icon.pressStart !== null) updateIcon(icon, time);
+            if (icon.ready && (icon.visible || icon.pressStart !== null)) updateIcon(icon, time);
         });
     }
     loop();

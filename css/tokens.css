@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
+
+/* The site's palette and type. Every page's stylesheet starts from this file. */
+:root {
+  /* Palette */
+  --charcoal: #595758;
+  --wisteria: #8390FA;
+  --blush: #FFEEF2;
+  --veil: #FFE4F3;
+  --rose: #E54F6D;
+
+  /* Roles.
+     Rose (3.3:1) and Wisteria (2.6:1) are too light on Blush for small text,
+     so they're only for large display type, shapes, rules and focus rings.
+     All small text uses --ink or --muted, which pass 4.5:1 on Blush and Veil. */
+  --bg: var(--blush);
+  --surface: var(--veil);
+  --ink: var(--charcoal);
+  --muted: #6a6769; /* lighter tint of Charcoal */
+  --line: rgba(89, 87, 88, 0.18);
+  --glass: rgba(255, 238, 242, 0.82);
+
+  /* Type */
+  --display: "Anton", Impact, "Arial Narrow", sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+}

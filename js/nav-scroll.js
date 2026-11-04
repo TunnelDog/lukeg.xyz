@@ -62,6 +62,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Fade + rise .reveal elements into place the first time they scroll into view
   const revealTargets = document.querySelectorAll('.reveal');
   if (revealTargets.length) {
+    // Only hidden from this point on, so if this script ever fails to load the
+    // content simply stays visible.
+    document.documentElement.classList.add('reveal-ready');
+
     const revealObserver = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
           obs.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15 });
+    }, { rootMargin: '0px 0px -8% 0px' });
 
     revealTargets.forEach(target => revealObserver.observe(target));
   }

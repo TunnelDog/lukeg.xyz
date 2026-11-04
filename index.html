@@ -14,23 +14,28 @@
   <meta name="twitter:title" content="Luke G">
   <meta name="twitter:description" content="Explore Luke Gamertsfelder's portfolio to see personal projects in software development, hardware design, and poetry.">
   <meta name="twitter:image" content="https://www.lukeg.xyz/images/icon.png">
-  <link rel="icon" type="image/x-icon" href="/images/icon.png">
+  <link rel="icon" type="image/x-icon" href="images/icon.png">
   <link rel="stylesheet" href="css/style.css" />
+  <!-- Holds back the plain name while the 3D one loads, without ever leaving the page blank for long. -->
+  <script>
+    document.documentElement.classList.add('hero-pending');
+    setTimeout(function () { document.documentElement.classList.remove('hero-pending'); }, 4000);
+  </script>
 </head>
 <body>
 
   <header class="header" id="navbar">
-    <a href="/index.html#home" class="brand">Luke Gamertsfelder</a>
+    <a href="#home" class="brand">Luke Gamertsfelder</a>
     <nav class="navbar">
-      <a href="/index.html#about" class="nav-link" data-section="about">About</a>
-      <a href="/index.html#projects" class="nav-link" data-section="projects">Work</a>
-      <a href="/blog/index.html">Blog</a>
-      <a href="/contact/contact.html">Contact</a>
+      <a href="#about" class="nav-link" data-section="about">About</a>
+      <a href="#projects" class="nav-link" data-section="projects">Work</a>
+      <a href="blog/index.html">Blog</a>
+      <a href="contact/contact.html">Contact</a>
     </nav>
   </header>
 
   <section id="home" class="home-section">
-    <canvas id="ribbon-canvas" aria-hidden="true"></canvas>
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
     <h1 class="hero-name">Luke G</h1>
     <div class="hero-caption">
       <p class="eyebrow">Computer Engineering &middot; Texas Tech</p>
@@ -55,11 +60,11 @@
         </p>
         <ul class="link-row">
           <li><a href="https://github.com/TunnelDog" target="_blank" rel="noopener">GitHub <span aria-hidden="true">&#8599;</span></a></li>
-          <li><a href="/about/assests/cv.pdf" target="_blank" rel="noopener">CV <span aria-hidden="true">&#8599;</span></a></li>
+          <li><a href="about/assests/cv.pdf" target="_blank" rel="noopener">CV <span aria-hidden="true">&#8599;</span></a></li>
           <li><a href="https://www.linkedin.com/in/luke-gamertsfelder-0436962bb" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true">&#8599;</span></a></li>
           <li><a href="https://www.youtube.com/@Luke-dt4jn" target="_blank" rel="noopener">YouTube <span aria-hidden="true">&#8599;</span></a></li>
-          <li><a href="/poetry/index.html">Poetry</a></li>
-          <li><a href="/blog/index.html">Blog</a></li>
+          <li><a href="poetry/index.html">Poetry</a></li>
+          <li><a href="blog/index.html">Blog</a></li>
         </ul>
       </div>
     </div>
@@ -72,9 +77,9 @@
 
         <article class="app">
           <a class="app-icon" href="https://tinybudgets.lukeg.xyz"
-             data-texture="/images/apps/tinybudgets.png" data-edge="#1a1a1a"
+             data-texture="images/apps/tinybudgets.png" data-edge="#1a1a1a"
              aria-label="TinyBudgets landing page">
-            <img src="/images/apps/tinybudgets.png" alt="" width="1024" height="1024">
+            <img src="images/apps/tinybudgets.png" alt="" width="1024" height="1024">
           </a>
           <div class="app-body">
             <p class="app-meta">iOS app</p>
@@ -89,9 +94,9 @@
 
         <article class="app">
           <a class="app-icon" href="https://sellex.lukeg.xyz"
-             data-texture="/images/apps/sellex.jpg" data-edge="#9cc6fb"
+             data-texture="images/apps/sellex.jpg" data-edge="#9cc6fb"
              aria-label="Sellex landing page">
-            <img src="/images/apps/sellex.jpg" alt="" width="1024" height="1024">
+            <img src="images/apps/sellex.jpg" alt="" width="1024" height="1024">
           </a>
           <div class="app-body">
             <p class="app-meta">iOS &amp; iPadOS app <span class="tag">In progress</span></p>
@@ -107,9 +112,9 @@
 
         <article class="app">
           <a class="app-icon" href="https://snapback.lukeg.xyz"
-             data-texture="/images/apps/snapback.png" data-edge="#e8e400"
+             data-texture="images/apps/snapback.png" data-edge="#e8e400"
              aria-label="SnapBack landing page">
-            <img src="/images/apps/snapback.png" alt="" width="1024" height="1024">
+            <img src="images/apps/snapback.png" alt="" width="1024" height="1024">
           </a>
           <div class="app-body">
             <p class="app-meta">Mobile app</p>
@@ -195,12 +200,11 @@
 
   <footer class="site-footer">
     <span>&copy; 2026 Luke Gamertsfelder</span>
-    <a href="/contact/contact.html">Get in touch <span aria-hidden="true">&rarr;</span></a>
+    <a href="contact/contact.html">Get in touch <span aria-hidden="true">&rarr;</span></a>
   </footer>
 
-  <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/app-icons.js"></script>
-  <script src="/js/nav-scroll.js"></script>
+  <script src="js/nav-scroll.js"></script>
+  <script src="js/dist/site.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

@@ -2,13 +2,22 @@
 
 **Date:** 2026-11-04
 **Branch:** `animated-hero`
-**Status:** Awaiting review
+**Status:** Approved 2026-11-04, then extended (see Scope update)
 
 ## Goal
 
 Replace the hero name at the top of `index.html` with an interactive 3D "Luke G" that combines kinetic type, morphing shapes, 3D elements and fluid camera moves, using the supplied color palette.
 
 The site is a personal portfolio, so a visitor must be able to read the name almost immediately. The animation supports the name and never competes with it.
+
+## Scope update (2026-11-04)
+
+Added after the spec was approved, at Luke's request:
+
+- **Works from local files.** The whole site must work when `index.html` is opened directly from the repo folder, including the Apps list. Browsers block ES modules on `file://`, so the site loads one classic-script bundle. Root-absolute paths become relative, except in `404.html`, which is served at arbitrary URLs.
+- **Palette across the site.** The palette now applies to every page, replacing "hero only" below. Contact, poetry, blog, 404 and the homepage sections share `css/tokens.css`.
+- **Bundle instead of import map.** This replaces `js/vendor/`, `js/hero/` and the import map described under Architecture. Sources live in `js/src/`, development tools in `tools/` (which has its own `package.json`, so hosting still treats the repo root as a static site), and the committed output in `js/dist/`. Visitors still run no build step.
+- **Convex morph shapes.** Shapes are rounded convex forms such as discs, pills and squircles. A letter's triangulation stays valid when its outline is mapped onto a convex curve, which is what keeps morphing clean. Arches are dropped.
 
 ## Success criteria
 
@@ -36,7 +45,7 @@ Contrast against Lavender Blush:
 - Blush Rose: about 3.3:1, large shapes and display type only.
 - Wisteria Blue: about 2.6:1, large shapes only.
 
-**Scope:** the palette applies to the hero only. The hero background fades into the site's existing `--bg` (`#fafaf9`) at its bottom edge, so there is no hard seam at the About section. Restyling the rest of the site is out of scope.
+**Scope:** the palette applies site-wide (see Scope update). The hero background fades into the page background at its bottom edge, so there is no hard seam at the About section.
 
 ## Look
 
@@ -127,7 +136,6 @@ The project has no test framework, so verification happens in the browser:
 
 ## Out of scope
 
-- Restyling sections other than the hero.
 - Changing the "Luke Gamertsfelder" brand text in the nav.
 - Device-tilt interaction.
 - Sound.
