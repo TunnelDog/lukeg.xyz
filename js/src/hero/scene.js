@@ -17,6 +17,9 @@ const WORD_HEIGHT = 0.875;
 const MAX_TALL = 1.5; // how far letters may stretch to fill a tall screen
 const MAX_TALL_PHONE = 2.7; // phones have far more height to fill
 
+const FLOAT_HEIGHT = 0.018; // ems each letter bobs up and down
+const FLOAT_SWAY = 0.05; // radians each letter turns as it floats
+
 const STRETCH_REACH = 0.42; // ems of pointer influence
 const STRETCH_AMOUNT = 0.8;
 const MAX_DPR_COARSE = 2;
@@ -42,22 +45,21 @@ const INTRO_STARTS = [
     { x: 0.95, y: 0.55, z: -0.5, rotX: 0.6, rotY: 1.8, rotZ: -0.5 }
 ];
 
-// Quiet shapes that slowly morph, floating behind the word. x is a fraction
-// of the word's width and y of its height, both from the centre. The first
-// group sits in the gaps above and between letters, the second peeks out from
-// directly behind them.
-const DRIFTERS = [
-    { x: -0.3, y: 0.46, z: -0.45, size: 0.088, color: PALETTE.rose, from: [1, 1, 2], to: [0.72, 1.2, 3.4] },
-    { x: 0.13, y: 0.47, z: -0.5, size: 0.09, color: PALETTE.wisteria, from: [1.25, 0.8, 3], to: [1, 1, 2] },
-    { x: 0.27, y: 0.46, z: -0.6, size: 0.075, color: PALETTE.veil, from: [1, 1, 3], to: [1.3, 0.75, 2] },
-    { x: 0.27, y: 0.25, z: -0.15, size: 0.06, color: PALETTE.rose, from: [1, 1, 1.5], to: [1.15, 0.8, 3] },
-    { x: 0.265, y: -0.36, z: -0.55, size: 0.055, color: PALETTE.wisteria, from: [1.3, 0.75, 2.4], to: [1, 1, 3.6] },
-
-    { x: -0.355, y: 0.12, z: -0.7, size: 0.14, color: PALETTE.rose, from: [1, 1, 2], to: [0.8, 1.2, 3] },
-    { x: -0.1, y: 0.2, z: -0.85, size: 0.15, color: PALETTE.veil, from: [1.2, 0.85, 3], to: [1, 1, 2] },
-    { x: 0.02, y: 0.34, z: -0.65, size: 0.07, color: PALETTE.charcoal, from: [1, 1, 2.6], to: [1.2, 0.8, 1.6] },
-    { x: 0.21, y: -0.18, z: -0.9, size: 0.13, color: PALETTE.blush, from: [0.85, 1.2, 2.2], to: [1.1, 0.9, 3.4] },
-    { x: 0.46, y: 0.02, z: -0.75, size: 0.11, color: PALETTE.rose, from: [1, 1, 3], to: [1.2, 0.8, 2] }
+// Spheres floating behind the word, one in each open space around the letters.
+// x is a fraction of the word's width and y of its height, both from the centre.
+// They sit behind the word, so perspective pulls them towards the middle: an x
+// past 0.5 is what puts one in the margin beside the word.
+const SPHERES = [
+    { x: -0.585, y: -0.05, z: -0.35, radius: 0.05, color: PALETTE.wisteria },
+    { x: -0.384, y: 0.32, z: -0.6, radius: 0.09, color: PALETTE.wisteria },
+    { x: -0.413, y: -0.19, z: -0.75, radius: 0.12, color: PALETTE.rose },
+    { x: -0.245, y: 0.5, z: -0.45, radius: 0.07, color: PALETTE.veil },
+    { x: 0.041, y: 0.41, z: -0.6, radius: 0.06, color: PALETTE.charcoal },
+    { x: 0.168, y: 0.51, z: -0.5, radius: 0.075, color: PALETTE.wisteria },
+    { x: 0.319, y: 0.39, z: -0.6, radius: 0.07, color: PALETTE.blush },
+    { x: 0.29, y: 0.02, z: -0.3, radius: 0.05, color: PALETTE.rose },
+    { x: 0.289, y: -0.37, z: -0.4, radius: 0.06, color: PALETTE.wisteria },
+    { x: 0.58, y: 0.21, z: -0.35, radius: 0.055, color: PALETTE.rose }
 ];
 
 const toPoints = flat => {
@@ -129,7 +131,6 @@ function buildLetters(scene) {
             mesh,
             shadow,
             material,
-            colorName: 'wisteria',
             morph: material.userData.uMorph,
             intro: { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 },
             kick: { value: 0 },
@@ -143,21 +144,14 @@ function buildLetters(scene) {
     });
 }
 
-function buildDrifters(scene) {
-    return DRIFTERS.map((spec, index) => {
-        const [fa, fb, fn] = spec.from;
-        const [ta, tb, tn] = spec.to;
-        const outer = superellipse(fa * spec.size, fb * spec.size, fn, 96);
-        const geometry = createMorphGeometry({
-            outer,
-            morphOuter: superellipse(ta * spec.size, tb * spec.size, tn, 96),
-            depth: spec.size * 0.7,
-            bevel: spec.size * 0.14
-        });
-        const material = createMorphMaterial(spec.color);
+function buildSpheres(scene) {
+    const geometry = new THREE.SphereGeometry(1, 32, 24);
+    return SPHERES.map((spec, index) => {
+        const material = new THREE.MeshStandardMaterial({ color: spec.color, roughness: 0.62, metalness: 0 });
         const mesh = new THREE.Mesh(geometry, material);
+        mesh.scale.setScalar(spec.radius);
         scene.add(mesh);
-        return { spec, mesh, morph: material.userData.uMorph, seed: index * 2.3 + 1 };
+        return { spec, mesh, seed: index * 2.3 + 1 };
     });
 }
 
@@ -199,7 +193,7 @@ export function initHero() {
     const layout = { distance: 5, tall: 1, width: 1, height: 1, shift: 0, wordWidth: 1 };
 
     const letters = buildLetters(scene);
-    const drifters = buildDrifters(scene);
+    const spheres = buildSpheres(scene);
 
     const totalAdvance = letters.reduce((sum, l) => sum + l.advance + l.spaceBefore, 0);
     const lettersAdvance = letters.reduce((sum, l) => sum + l.advance, 0);
@@ -266,46 +260,47 @@ export function initHero() {
             const isRight = letter.spaceBefore > 0 || letter === letters[letters.length - 1];
             const part = isRight ? 0.75 : -0.85;
             const drift = prefersReducedMotion ? 0 : 1;
-            const floatY = Math.sin(time * 0.8 + letter.seed) * 0.012 * drift;
-            const floatRot = Math.sin(time * 0.55 + letter.seed) * 0.022 * drift;
+            // Each letter bobs and sways on its own slow rhythm.
+            const floatY = Math.sin(time * 0.9 + letter.seed) * FLOAT_HEIGHT * drift;
+            const floatX = Math.cos(time * 0.6 + letter.seed * 1.3) * FLOAT_HEIGHT * 0.3 * drift;
+            const swayY = Math.sin(time * 0.55 + letter.seed) * FLOAT_SWAY * drift;
+            const swayX = Math.cos(time * 0.7 + letter.seed * 0.8) * FLOAT_SWAY * 0.35 * drift;
+            const swayZ = Math.sin(time * 0.45 + letter.seed * 1.6) * FLOAT_SWAY * 0.25 * drift;
 
             const { intro } = letter;
             const squash = 1 + (1 - letter.width) * 0.32;
             const glyphOffset = (letter.glyphCentre - letter.advance / 2) * letter.width;
 
             letter.pivot.position.set(
-                letter.worldX + glyphOffset + intro.x + part * progress,
+                letter.worldX + glyphOffset + intro.x + floatX + part * progress,
                 floatY + intro.y,
                 intro.z
             );
-            letter.pivot.rotation.set(intro.rotX, intro.rotY + floatRot, intro.rotZ);
+            letter.pivot.rotation.set(intro.rotX + swayX, intro.rotY + swayY, intro.rotZ + swayZ);
             letter.pivot.scale.set(letter.width, layout.tall * squash, 1);
 
             const floor = -(WORD_HEIGHT / 2) * layout.tall - 0.02;
             const lift = clamp(1 - (Math.abs(intro.y) + Math.abs(intro.z)) * 1.2, 0, 1);
             letter.shadow.position.set(letter.pivot.position.x, floor, intro.z + 0.02);
-            letter.shadow.scale.set(letter.glyphWidth * letter.width * 1.5, 0.55, 1);
-            letter.shadow.material.opacity = lift * (1 - progress);
+            // The shadow spreads and fades a little as the letter rises.
+            const rise = floatY / FLOAT_HEIGHT;
+            letter.shadow.scale.set(letter.glyphWidth * letter.width * (1.5 + rise * 0.08), 0.55, 1);
+            letter.shadow.material.opacity = lift * (1 - progress) * (1 - rise * 0.12);
         });
         return parts;
     }
 
-    function placeDrifters(time) {
+    function placeSpheres(time) {
         const wordHeight = WORD_HEIGHT * layout.tall;
-        drifters.forEach(drifter => {
-            const { spec, mesh, morph, seed } = drifter;
-            const still = prefersReducedMotion ? 0 : 1;
+        // Phones have almost no margin, so the outer spheres tuck in.
+        const spread = layout.width < 720 ? 0.88 : 1;
+        const drift = prefersReducedMotion ? 0 : 0.05;
+        spheres.forEach(({ spec, mesh, seed }) => {
             mesh.position.set(
-                spec.x * layout.wordWidth + Math.sin(time * 0.3 + seed) * 0.05 * still,
-                spec.y * wordHeight + Math.cos(time * 0.42 + seed) * 0.05 * still,
+                spec.x * layout.wordWidth * spread + Math.sin(time * 0.3 + seed) * drift,
+                spec.y * wordHeight + Math.cos(time * 0.42 + seed) * drift,
                 spec.z
             );
-            mesh.rotation.set(
-                0.5 + Math.sin(time * 0.25 + seed) * 0.6 * still,
-                seed + time * 0.22 * still,
-                Math.cos(time * 0.2 + seed) * 0.4 * still
-            );
-            morph.value = still ? 0.5 + 0.5 * Math.sin(time * 0.5 + seed) : 0;
         });
     }
 
@@ -353,7 +348,7 @@ export function initHero() {
         x >= screen.left && x <= screen.right && y >= screen.top && y <= screen.bottom);
 
     function renderStill() {
-        placeDrifters(0);
+        placeSpheres(0);
         const parts = placeLetters(0, null, null);
         placeCamera(parts.gap);
         renderer.render(scene, camera);
@@ -428,7 +423,7 @@ export function initHero() {
         parallax.x = damp(parallax.x, input.hasPointer ? input.nx : 0, 2.6, dt);
         parallax.y = damp(parallax.y, input.hasPointer ? input.ny : 0, 2.6, dt);
 
-        placeDrifters(time);
+        placeSpheres(time);
         const parts = placeLetters(time, dt, input);
         placeCamera(parts.gap);
         measureLetters();

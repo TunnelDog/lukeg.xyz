@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { Color } from 'three';
+import { Color, SRGBColorSpace } from 'three';
 import { PALETTE } from './palette.js';
 
 // Slow devices drop frames rather than stretch the intro out, so the name
@@ -30,32 +30,46 @@ export function playIntro(letters, camera, onDone) {
     return timeline;
 }
 
-// Colors a clicked letter can fade to. Blush and Veil are left out because
-// they'd make the name unreadable on the white background.
-const LETTER_COLORS = ['wisteria', 'rose', 'charcoal'];
+// While a clicked letter morphs, it fades through random colors, then settles
+// back to blue.
+const SHUFFLE_STEP = 0.2; // seconds to fade to each color
+const MORPH_END = 1.45; // when the melt below has finished
+const RESTING_COLOR = new Color(PALETTE.wisteria);
+const RESTING_HUE = RESTING_COLOR.getHSL({}, SRGBColorSpace).h;
 
-function nextColor(current) {
-    const options = LETTER_COLORS.filter(name => name !== current);
-    return options[Math.floor(Math.random() * options.length)];
+// Any hue goes, but saturation and lightness stay in a range that shows up on
+// white. Each hue is at least 60 degrees from the last, so every fade is visible.
+function randomColorAfter(previousHue) {
+    const hue = (previousHue + 1 / 6 + Math.random() * (2 / 3)) % 1;
+    const saturation = 0.65 + Math.random() * 0.3;
+    const lightness = 0.48 + Math.random() * 0.14;
+    return { hue, color: new Color().setHSL(hue, saturation, lightness, SRGBColorSpace) };
 }
 
 export function playMelt(letter) {
     if (letter.melting) return;
     letter.melting = true;
 
-    letter.colorName = nextColor(letter.colorName);
-    const { r, g, b } = new Color(PALETTE[letter.colorName]);
-
-    gsap.timeline({ onComplete: () => { letter.melting = false; } })
+    const timeline = gsap.timeline({ onComplete: () => { letter.melting = false; } })
         .to(letter.morph, { value: 1, duration: 0.42, ease: 'power2.inOut' }, 0)
         .to(letter.intro, { y: 0.14, rotY: Math.PI, duration: 0.42, ease: 'power2.out' }, 0)
         .to(letter.morph, { value: 0, duration: 0.95, ease: 'elastic.out(1, 0.55)' }, 0.5)
         .to(letter.intro, { y: 0, duration: 0.6, ease: 'bounce.out' }, 0.5)
         .to(letter.intro, { rotY: Math.PI * 2, duration: 0.8, ease: 'power3.out' }, 0.5)
         .set(letter.intro, { rotY: 0 })
-        .fromTo(letter.kick, { value: 0.7 }, { value: 0, duration: 0.9, ease: 'elastic.out(1, 0.4)' }, 0.5)
-        // Once it has re-formed, the letter fades to its new color.
-        .to(letter.material.color, { r, g, b, duration: 0.9, ease: 'sine.inOut' }, 0.95);
+        .fromTo(letter.kick, { value: 0.7 }, { value: 0, duration: 0.9, ease: 'elastic.out(1, 0.4)' }, 0.5);
+
+    const { color } = letter.material;
+    let hue = RESTING_HUE;
+    const fades = Math.floor(MORPH_END / SHUFFLE_STEP);
+    for (let i = 0; i < fades; i++) {
+        const next = randomColorAfter(hue);
+        hue = next.hue;
+        const { r, g, b } = next.color;
+        timeline.to(color, { r, g, b, duration: SHUFFLE_STEP, ease: 'sine.inOut' }, i * SHUFFLE_STEP);
+    }
+    const { r, g, b } = RESTING_COLOR;
+    timeline.to(color, { r, g, b, duration: 0.3, ease: 'sine.inOut' }, MORPH_END);
 }
 
 export const ticker = gsap.ticker;

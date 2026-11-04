@@ -24,8 +24,8 @@ Added after the spec was approved, at Luke's request:
 Replaces any conflicting detail below:
 
 - **Background:** white (`#fafaf9`) on every page, with no hero gradient. Veil is kept for small accents such as form fields.
-- **Letters:** every letter starts Wisteria Blue. Clicking one plays the melt, then fades it to another color: Wisteria, Rose or Charcoal. Blush and Veil are left out because the name would be unreadable on white.
-- **Floating objects:** ten in total, five of them positioned directly behind the letters.
+- **Letters:** every letter is Wisteria Blue and floats gently on its own rhythm. Clicking one plays the melt while it fades through random colors, then it returns to blue when the morph finishes.
+- **Floating objects:** ten spheres in palette colors, spread behind and around the word.
 - **Contact page:** uses the home page's nav and `css/style.css`.
 
 ## Success criteria
