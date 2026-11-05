@@ -25,7 +25,7 @@ Replaces any conflicting detail below:
 
 - **Background:** white (`#fafaf9`) on every page, with no hero gradient. Veil is kept for small accents such as form fields.
 - **Letters:** every letter is Wisteria Blue and floats gently on its own rhythm. Clicking one plays the melt while it fades through random colors, then it returns to blue when the morph finishes.
-- **Floating objects:** ten spheres in palette colors, spread behind and around the word.
+- **Floating objects:** removed. The letters are the only objects in the scene.
 - **Contact page:** uses the home page's nav and `css/style.css`.
 
 ## Success criteria

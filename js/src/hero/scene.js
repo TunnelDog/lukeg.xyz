@@ -17,8 +17,12 @@ const WORD_HEIGHT = 0.875;
 const MAX_TALL = 1.5; // how far letters may stretch to fill a tall screen
 const MAX_TALL_PHONE = 2.7; // phones have far more height to fill
 
-const FLOAT_HEIGHT = 0.018; // ems each letter bobs up and down
-const FLOAT_SWAY = 0.05; // radians each letter turns as it floats
+const FLOAT_HEIGHT = 0.032; // ems each letter bobs up and down
+const FLOAT_PHONE_BOOST = 2; // letters are small on phones and there's room to spare
+const FLOAT_SWAY = 0.075; // radians each letter turns as it floats
+
+const CAPTION_CLEARANCE = 0.085; // fraction of the hero's height
+const CAPTION_CLEARANCE_MIN = 40; // CSS pixels
 
 const STRETCH_REACH = 0.42; // ems of pointer influence
 const STRETCH_AMOUNT = 0.8;
@@ -43,23 +47,6 @@ const INTRO_STARTS = [
     { x: 0.1, y: 0.85, z: -0.6, rotX: 1.1, rotY: 1.5, rotZ: 0.3 },
     { x: 0.5, y: -0.7, z: 0.4, rotX: -0.9, rotY: -1.3, rotZ: 0.6 },
     { x: 0.95, y: 0.55, z: -0.5, rotX: 0.6, rotY: 1.8, rotZ: -0.5 }
-];
-
-// Spheres floating behind the word, one in each open space around the letters.
-// x is a fraction of the word's width and y of its height, both from the centre.
-// They sit behind the word, so perspective pulls them towards the middle: an x
-// past 0.5 is what puts one in the margin beside the word.
-const SPHERES = [
-    { x: -0.585, y: -0.05, z: -0.35, radius: 0.05, color: PALETTE.wisteria },
-    { x: -0.384, y: 0.32, z: -0.6, radius: 0.09, color: PALETTE.wisteria },
-    { x: -0.413, y: -0.19, z: -0.75, radius: 0.12, color: PALETTE.rose },
-    { x: -0.245, y: 0.5, z: -0.45, radius: 0.07, color: PALETTE.veil },
-    { x: 0.041, y: 0.41, z: -0.6, radius: 0.06, color: PALETTE.charcoal },
-    { x: 0.168, y: 0.51, z: -0.5, radius: 0.075, color: PALETTE.wisteria },
-    { x: 0.319, y: 0.39, z: -0.6, radius: 0.07, color: PALETTE.blush },
-    { x: 0.29, y: 0.02, z: -0.3, radius: 0.05, color: PALETTE.rose },
-    { x: 0.289, y: -0.37, z: -0.4, radius: 0.06, color: PALETTE.wisteria },
-    { x: 0.58, y: 0.21, z: -0.35, radius: 0.055, color: PALETTE.rose }
 ];
 
 const toPoints = flat => {
@@ -144,17 +131,6 @@ function buildLetters(scene) {
     });
 }
 
-function buildSpheres(scene) {
-    const geometry = new THREE.SphereGeometry(1, 32, 24);
-    return SPHERES.map((spec, index) => {
-        const material = new THREE.MeshStandardMaterial({ color: spec.color, roughness: 0.62, metalness: 0 });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.scale.setScalar(spec.radius);
-        scene.add(mesh);
-        return { spec, mesh, seed: index * 2.3 + 1 };
-    });
-}
-
 export function initHero() {
     const hero = document.getElementById('home');
     const canvas = document.getElementById('hero-canvas');
@@ -193,7 +169,6 @@ export function initHero() {
     const layout = { distance: 5, tall: 1, width: 1, height: 1, shift: 0, wordWidth: 1 };
 
     const letters = buildLetters(scene);
-    const spheres = buildSpheres(scene);
 
     const totalAdvance = letters.reduce((sum, l) => sum + l.advance + l.spaceBefore, 0);
     const lettersAdvance = letters.reduce((sum, l) => sum + l.advance, 0);
@@ -215,8 +190,11 @@ export function initHero() {
         const heroRect = hero.getBoundingClientRect();
         const caption = hero.querySelector('.hero-caption');
         const captionTop = caption ? caption.getBoundingClientRect().top - heroRect.top : height * 0.85;
+        // Letters float and squash past their resting size, so leave them room
+        // to do that without passing behind the caption.
+        const clearance = Math.max(CAPTION_CLEARANCE_MIN, height * CAPTION_CLEARANCE);
         const top = 72;
-        const bottom = Math.max(captionTop - 20, height * 0.55);
+        const bottom = Math.max(captionTop - clearance, height * 0.55);
         const region = bottom - top;
 
         const fitWidth = (width * (width < 720 ? 0.94 : 0.88)) / totalAdvance;
@@ -261,7 +239,8 @@ export function initHero() {
             const part = isRight ? 0.75 : -0.85;
             const drift = prefersReducedMotion ? 0 : 1;
             // Each letter bobs and sways on its own slow rhythm.
-            const floatY = Math.sin(time * 0.9 + letter.seed) * FLOAT_HEIGHT * drift;
+            const floatHeight = FLOAT_HEIGHT * (layout.width < 720 ? FLOAT_PHONE_BOOST : 1);
+            const floatY = Math.sin(time * 0.9 + letter.seed) * floatHeight * drift;
             const floatX = Math.cos(time * 0.6 + letter.seed * 1.3) * FLOAT_HEIGHT * 0.3 * drift;
             const swayY = Math.sin(time * 0.55 + letter.seed) * FLOAT_SWAY * drift;
             const swayX = Math.cos(time * 0.7 + letter.seed * 0.8) * FLOAT_SWAY * 0.35 * drift;
@@ -283,25 +262,11 @@ export function initHero() {
             const lift = clamp(1 - (Math.abs(intro.y) + Math.abs(intro.z)) * 1.2, 0, 1);
             letter.shadow.position.set(letter.pivot.position.x, floor, intro.z + 0.02);
             // The shadow spreads and fades a little as the letter rises.
-            const rise = floatY / FLOAT_HEIGHT;
+            const rise = floatY / floatHeight;
             letter.shadow.scale.set(letter.glyphWidth * letter.width * (1.5 + rise * 0.08), 0.55, 1);
             letter.shadow.material.opacity = lift * (1 - progress) * (1 - rise * 0.12);
         });
         return parts;
-    }
-
-    function placeSpheres(time) {
-        const wordHeight = WORD_HEIGHT * layout.tall;
-        // Phones have almost no margin, so the outer spheres tuck in.
-        const spread = layout.width < 720 ? 0.88 : 1;
-        const drift = prefersReducedMotion ? 0 : 0.05;
-        spheres.forEach(({ spec, mesh, seed }) => {
-            mesh.position.set(
-                spec.x * layout.wordWidth * spread + Math.sin(time * 0.3 + seed) * drift,
-                spec.y * wordHeight + Math.cos(time * 0.42 + seed) * drift,
-                spec.z
-            );
-        });
     }
 
     function placeCamera(gapX) {
@@ -348,7 +313,6 @@ export function initHero() {
         x >= screen.left && x <= screen.right && y >= screen.top && y <= screen.bottom);
 
     function renderStill() {
-        placeSpheres(0);
         const parts = placeLetters(0, null, null);
         placeCamera(parts.gap);
         renderer.render(scene, camera);
@@ -423,7 +387,6 @@ export function initHero() {
         parallax.x = damp(parallax.x, input.hasPointer ? input.nx : 0, 2.6, dt);
         parallax.y = damp(parallax.y, input.hasPointer ? input.ny : 0, 2.6, dt);
 
-        placeSpheres(time);
         const parts = placeLetters(time, dt, input);
         placeCamera(parts.gap);
         measureLetters();

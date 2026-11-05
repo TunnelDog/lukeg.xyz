@@ -158,7 +158,7 @@ body.hovering {
 .hero-caption {
   position: absolute;
   left: var(--gutter);
-  bottom: clamp(28px, 7vh, 64px);
+  bottom: clamp(14px, 3.5vh, 32px);
   /* Leaves room for the scroll cue on the right. */
   max-width: min(440px, calc(100vw - 2 * var(--gutter) - 60px));
 }
@@ -191,7 +191,7 @@ body.hovering {
 .scroll-cue {
   position: absolute;
   right: var(--gutter);
-  bottom: clamp(28px, 7vh, 64px);
+  bottom: clamp(14px, 3.5vh, 32px);
   width: 44px;
   height: 44px;
   display: flex;
@@ -271,7 +271,7 @@ body.hovering {
 }
 
 @media (max-width: 720px) {
-  .section-grid { grid-template-columns: 1fr; }
+  .section-grid { grid-template-columns: 1fr; gap: 16px; padding: 36px 0; }
   .section-label { padding-top: 0; }
 }
 
